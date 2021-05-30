@@ -2,6 +2,7 @@
 
 source "https://rubygems.org"
 
-gem "kramdown-parser-gfm"
-
-gemspec
+gem "webrick"
+gem "jekyll"
+gem "jekyll-feed"
+gem "jekyll-seo-tag"
