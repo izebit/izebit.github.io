@@ -3,7 +3,7 @@ entries:
     url: about
 
   - title: posts
-    url: site_map
+    url: categories
     post_list:
       limit: 15
       show_more: true
