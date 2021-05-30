@@ -1,4 +1,4 @@
-title: izebit| Blog about programming
+title: izebit | Blog about programming
 author: Artem Konovalov
 email: izebit@gmail.com
 url: https://izebit.ru
@@ -18,6 +18,9 @@ theme_config:
   back_home_text: ".." # customize text for homepage link in post layout
   date_format: "%Y-%m-%d" # customize how date is formatted
   show_description: true # show blog description in home page
+
+kramdown:
+  hard_wrap: true
 
 sass:
   style: :compressed
