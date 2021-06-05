@@ -2,7 +2,7 @@ title: izebit | Blog about programming
 author: Artem Konovalov
 email: izebit@gmail.com
 url: https://izebit.ru
-baseurl: "/"
+baseurl: ""
 description: >
   This website is a personal blog. Mainly there are articles about
   java programming, but you can find ones on other topics.
