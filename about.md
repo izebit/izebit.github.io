@@ -14,4 +14,4 @@ Links:
 - [github](https://github.com/izebit)
 - [stackoverflow [ru]](https://ru.stackoverflow.com/users/10353/artem-konovalov)
 - [linkedIn](https://www.linkedin.com/in/conovart/)
-- [oracle certifications](https://www.credly.com/badges/c4662519-938f-495a-b885-5800ee5bd757/public_url)
+- [oracle certifications](https://www.credly.com/users/artem-konovalov/badges)
