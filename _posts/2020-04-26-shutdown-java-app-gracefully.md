@@ -37,10 +37,10 @@ public void perform(){
 
 ### What steps do we have to do in order to stop app gracefully?
 
-First of all, we need to set isRunning to true, then we wait until a task is done. 
-It's pretty clear, but what initiates this activity? We can send a system termination signal to an application. 
-As I mentioned earlier, kill <pid application> is an excellent candidate to do it. 
-Please be attentive, the command without flag **-9**. It's crucial because `kill -9` doesn't let us handle this signal at all.
+First of all, we need to set isRunning to true, then we wait until a task is done.
+It's pretty clear, but what initiates this activity? We can send a system termination signal to an application.
+As I mentioned earlier, kill <pid application> is an excellent candidate to do it. Please be attentive,
+the command without flag **-9**. It's crucial because `kill -9` doesn't let us handle this signal at all.
 
 In java, we can handle a termination signal and add some callback if an application received 
 the signal from the operating system or somebody else. `java.misc.Signal` does exactly want we need. The code below creates callback.
