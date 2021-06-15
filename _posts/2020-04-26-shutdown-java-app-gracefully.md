@@ -20,7 +20,7 @@ We can't interrupt its work because, in this case, the state would be inconsiste
 For example, the application is copying files or performing some transactions or something like that. 
 We have to wait the moment when all work has been done, or the app will be ready to stop working on its own.
 
-The code below illustrates the logic of app working:
+The code below illustrates the logic of app work:
 
 ```java
 private boolean isRunning = true;
@@ -40,7 +40,7 @@ public void perform(){
 First of all, we need to set isRunning to true, then we wait until a task is done. 
 It's pretty clear, but what initiates this activity? We can send a system termination signal to an application. 
 As I mentioned earlier, kill <pid application> is an excellent candidate to do it. 
-Please be attentive, the command without flag -9. It's crucial because `kill -9` doesn't let us handle this signal at all.
+Please be attentive, the command without flag **-9**. It's crucial because `kill -9` doesn't let us handle this signal at all.
 
 In java, we can handle a termination signal and add some callback if an application received 
 the signal from the operating system or somebody else. `java.misc.Signal` does exactly want we need. The code below creates callback.
