@@ -1,7 +1,7 @@
 ---
 layout: post
 category: spring
-title: a webinar "reactive programming in spring"
+title: reactive spring
 ---
 
 In this video, I talk about the reactive features of the spring framework.
