@@ -5,6 +5,7 @@ title: TF-IDF with HADOOP STREAMING
 ---
 
 <img src="/assets/img/pipeline.jpg" alt="pipeline"/>
+
 <sub><sup>
 Photo by [Mike Benna](https://unsplash.com/@mbenna?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText) on Unsplash 
 </sup></sub>
