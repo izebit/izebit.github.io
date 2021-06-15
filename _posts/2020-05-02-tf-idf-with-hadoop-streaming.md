@@ -5,9 +5,9 @@ title: TF-IDF with HADOOP STREAMING
 ---
 
 <img src="/assets/img/pipeline.jpg" alt="pipeline"/>
-<sub><sup><sub>
-Photo by [Mike Benna](https://unsplash.com/@mbenna?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText) on Unsplash.
-</sup></sub></sup>
+<sub><sup>
+Photo by [Mike Benna](https://unsplash.com/@mbenna?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText) on Unsplash 
+</sup></sub>
 
 Today I want to talk about how we can calculate tf-idf with hadoop streaming.
 
