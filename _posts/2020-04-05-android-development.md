@@ -1,7 +1,7 @@
 ---
 layout: post
 category: android
-title: Why should you try android development?
+title: why should you try android development?
 ---
 
 <img src="/assets/img/android-development.jpg" alt="android development"/>
@@ -53,4 +53,4 @@ You can get access to a camera, GPS, gyroscopes, microphone etc. It gives you ma
 by your imagination. Moreover, you can create an application, which you can install on your smartphone and use every day. 
 To my mind, it’s a perfect experience and good basics to continue improving.
 
-I hope I have persuaded you to try it. Thanks for reading, take care and good luck
+I hope I have persuaded you to try it. Thanks for reading, take care and good luck.

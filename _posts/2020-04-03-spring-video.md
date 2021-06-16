@@ -1,7 +1,7 @@
 ---
 layout: post 
 category: spring 
-title: a webinar about spring framework
+title: webinar about spring framework
 ---
 
 During this webinar you will learn how to create a simple web blog with spring framework.  
@@ -12,7 +12,7 @@ The video covers next topics:
 - Spring MVC and Thymeleaf
 - Spring Security
 
-<iframe width="560" height="315"
+<iframe width="800" height="450"
 src="https://www.youtube.com/embed/QlrPy1wvBzg"
 title="spring framework"
 frameborder="0" allow="accelerometer; autoplay;
