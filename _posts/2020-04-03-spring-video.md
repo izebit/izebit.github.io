@@ -12,9 +12,6 @@ The video covers next topics:
 - Spring MVC and Thymeleaf
 - Spring Security
 
-<iframe width="800" height="450"
-src="https://www.youtube.com/embed/QlrPy1wvBzg"
-title="spring framework"
-frameborder="0" allow="accelerometer; autoplay;
-clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-</iframe>
+<div class="video-container">
+<iframe width="800" height="450" src="https://www.youtube.com/embed/QlrPy1wvBzg" title="spring framework" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
