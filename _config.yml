@@ -2,6 +2,7 @@ title: izebit | Blog about programming
 author: Artem Konovalov
 email: izebit@gmail.com
 url: https://izebit.github.io
+safe: true
 baseurl: ""
 description: >
   This website is a personal blog. Mainly there are articles about
@@ -13,9 +14,13 @@ favicon: "icon.png"
 theme_config:
   appearance: "auto"
   back_home_text: "🔙"
-  date_format: "%d/%m/%Y"
+  date_format: "%d %B %Y"
   show_description: true
 
+highlighter: rouge
+kramdown:
+  math_engine: mathjax
+  syntax_highlighter: rouge
 sass:
   style: :compressed
 
