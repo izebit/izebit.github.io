@@ -85,7 +85,7 @@ Also, it should be noted that each CPU core has the first and the second level c
 one for all cores.
 
 I don't want to show a code due to it is quite cumbersome. If you wish to check it, it
-is [here](https://github.com/izebit/CPU-optimizations/blob/master/src/ru/izebit/CPU_optimizations/CPUCacheLevelBenchmark.java)
+is [here](https://github.com/izebit/CPU-optimizations/blob/master/src/ru/izebit/CPU_optimizations/CpuCacheLevelBenchmark.java)
 The results I have got is below:
 
 <img src="/assets/img/cache-levels-results.png" alt="CPU cache levels"/>

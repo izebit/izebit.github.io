@@ -153,4 +153,4 @@ $ mvn exec:java -Dexec.args="--username <your_username> --password <your_passwor
 
 I hope this topic was useful to you 😉. The source code is below.
 
-[github repo](https://github.com/izebit/selenide-example)
+[<img src="/assets/img/github-icon.svg" width="100" height="100">](https://github.com/izebit/selenide-example)
