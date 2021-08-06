@@ -1,6 +1,21 @@
 <!DOCTYPE html>
 <html lang="{{ page.lang | default: "en" }}">
   {%- include head.html -%}
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-00VK83F1ZX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-00VK83F1ZX');
+  </script>
+
   <body a="{{ site.theme_config.appearance | default: "auto" }}">
     <main class="page-content" aria-label="Content">
       <div class="w">
