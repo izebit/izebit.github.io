@@ -1,7 +1,7 @@
 ---
 layout: post
 category: java
-title: builders
+title: a word about design patter builder 
 ---
 
 Today we are going to talk on a design pattern __Builder__.
@@ -107,7 +107,7 @@ public class PersonBuilder {
 }
 ```
 What's going here?  Each time, when some parameter is set, a builder returns an instance of a new builder with only one method.
-A method lets set a parameter and return a new builder and so on. By this way, we can guarantee the order of setting parameters:
+A method lets set a parameter and return a new builder and so on. By this way, we can guarantee the order of operations:
 
 1. set a name
 2. set an age
