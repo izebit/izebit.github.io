@@ -1,7 +1,7 @@
 ---
 layout: post
-category: spring
-title: life behind proxy
+category: os
+title: a life behind proxy
 ---
 
 This topic is a cheat sheet for people who have to work behind proxy.

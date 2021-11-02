@@ -1,7 +1,7 @@
 ---
 layout: post
 category: spring
-title: reactive spring
+title: reactive spring [ru]
 ---
 
 In this video, I talk about the reactive features of the spring framework.

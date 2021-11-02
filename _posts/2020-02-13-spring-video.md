@@ -1,7 +1,7 @@
 ---
 layout: post 
 category: spring 
-title: webinar about spring framework
+title: webinar on spring boot [ru]
 ---
 
 During this webinar you will learn how to create a simple web blog with spring framework.  
