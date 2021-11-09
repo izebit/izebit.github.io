@@ -110,7 +110,7 @@ export SBT_OPTS=" \
 ```
 
 
-### git (you, definitely, know what it is 🙂)
+### git (you, definitely, know what it is) 🙂
 
 ```bash
 cat ~/.gitconfig
@@ -138,4 +138,16 @@ cat ~/.gitconfig
 export http_proxy=http://<PROXY_USER>:<PROXY_PASS>@<PROXY_URL>:<PROXY_PORT>
 export https_proxy=http://<PROXY_USER>:<PROXY_PASS>@<PROXY_URL>:<PROXY_PORT>
 ```
+
+### [pip](https://pypi.org/project/pip/) (dependency manager for python projects)
+
+Pip uses environment variables that curl uses, but there is another way to work with it.    
+The program has a flag called `--proxy`:
+```bash
+pip install --proxy http://<PROXY_USER>:<PROXY_PASS>@<PROXY_URL>:<PROXY_PORT> ...
+```
+
+You may have some troubles because of wrong SSL certificates. 
+To say PIP to ignore this type of errors, you can also pass the param with all used repositories: 
+`--trusted-host=pipy.org --trusted-host=files.pythonhosted.org ...`.   
 
