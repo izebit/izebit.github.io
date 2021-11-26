@@ -49,13 +49,21 @@ title: life expectancy visualization
             boxSize - padding);
     }
 
+   function getCanvasWidth(){
+        const isMobile = innerWidth < 1000;
+        if(isMobile)
+            return Math.round(innerWidth * 0.6);
+        else
+            return Math.round(innerWidth * 0.4);
+   }
+
     function draw(currentDays, totalDays) {
         const canvas = document.getElementById('canvas');
 
         if (canvas.getContext) {
             const context = canvas.getContext('2d');
-            context.canvas.width = Math.round(innerWidth * 0.4);
-            context.canvas.height = Math.round(innerHeight * 0.8);
+            context.canvas.width = getCanvasWidth();
+            context.canvas.height = innerHeight;
 
             context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -111,7 +119,8 @@ title: life expectancy visualization
       justify-content: center;
       margin: auto;
       width: 100%;
-      padding-top: 10px;">
+      padding-top: 10px;
+      padding-bottom: 10px;">
 
     <div>
         <canvas id="canvas"
@@ -119,7 +128,8 @@ title: life expectancy visualization
         </canvas>
     </div>
 
-    <div style="padding-left: 20px">
+    <div style="
+        padding-left: 20px">
         <div style="padding-top: 10px">
             <label for="current_country">country where you live:</label>
             <form style="padding-top: 10px">
