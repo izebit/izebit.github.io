@@ -54,8 +54,8 @@ title: life expectancy visualization
 
         if (canvas.getContext) {
             const context = canvas.getContext('2d');
-            context.canvas.width = Math.round(innerWidth * 0.6);
-            context.canvas.height = Math.round(innerHeight * 0.9);
+            context.canvas.width = Math.round(innerWidth * 0.5);
+            context.canvas.height = Math.round(innerHeight * 0.8);
 
             context.clearRect(0, 0, canvas.width, canvas.height);
 
