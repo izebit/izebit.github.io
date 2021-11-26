@@ -38,7 +38,7 @@ title: life expectancy visualization
     function drawBox(canvasContext, boxNumber, boxSize, canvasWidth, boxColour) {
         const countOfColumns = Math.ceil(canvasWidth / boxSize);
         const rowNumber = Math.floor(boxNumber / countOfColumns);
-        const columnNumber = Math.floor(boxNumber % countOfColumns)
+        const columnNumber = Math.floor(boxNumber % countOfColumns);
 
         const padding = Math.max(Math.round(boxSize / 10) / 2, 1);
         canvasContext.fillStyle = boxColour;
@@ -49,12 +49,21 @@ title: life expectancy visualization
             boxSize - padding);
     }
 
-   function getCanvasWidth(){
-        const isMobile = innerWidth < 1000;
+   function getCanvasSize(){
+        const containerWidth = innerWidth;
+        const containerHeight = innerHeight;
+
+        const isMobile = containerWidth < 1000;
         if(isMobile)
-            return Math.round(innerWidth * 0.6);
+            return {
+                canvasWidth: Math.round(containerWidth * 0.6),
+                canvasHeight: Math.round(containerHeight * 0.6),
+            };
         else
-            return Math.round(innerWidth * 0.4);
+             return {
+                canvasWidth: Math.round(containerWidth * 0.5),
+                canvasHeight: Math.round(containerHeight * 0.8),
+            };
    }
 
     function draw(currentDays, totalDays) {
@@ -62,8 +71,10 @@ title: life expectancy visualization
 
         if (canvas.getContext) {
             const context = canvas.getContext('2d');
-            context.canvas.width = getCanvasWidth();
-            context.canvas.height = innerHeight;
+            
+            const {canvasWidth, canvasHeight} = getCanvasSize();
+            context.canvas.width = canvasWidth;
+            context.canvas.height = canvasHeight;
 
             context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -97,8 +108,6 @@ title: life expectancy visualization
             inputForm.value = currentAge;
         }
 
-        console.log("country: " + currentCountry);
-        console.log("age: " + currentAge);
         if (currentAge && currentCountry)
             draw(getCountOfDays(currentAge), getCountOfDays(getTotalAge(currentCountry)))
     }
