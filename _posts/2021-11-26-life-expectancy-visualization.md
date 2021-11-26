@@ -54,7 +54,7 @@ title: life expectancy visualization
 
         if (canvas.getContext) {
             const context = canvas.getContext('2d');
-            context.canvas.width = Math.round(innerWidth * 0.5);
+            context.canvas.width = Math.round(innerWidth * 0.4);
             context.canvas.height = Math.round(innerHeight * 0.8);
 
             context.clearRect(0, 0, canvas.width, canvas.height);
@@ -74,17 +74,23 @@ title: life expectancy visualization
         if (country) {
             currentCountry = country;
             localStorage.setItem("current_country", currentCountry)
-        } else
-            currentCountry = localStorage.getItem("current_country")
+        } else {
+            currentCountry = localStorage.getItem("current_country");
+            const inputForm = document.getElementById("current_country");
+            inputForm.value = currentCountry;        
+        }
 
         if (age) {
             currentAge = age;
             localStorage.setItem("current_age", age)
-        } else
-            currentAge = localStorage.getItem("current_age")
+        } else {
+            currentAge = localStorage.getItem("current_age");
+            const inputForm = document.getElementById("current_age");
+            inputForm.value = currentAge;
+        }
 
-        console.log("country: " + currentCountry)
-        console.log("age: " + currentAge)
+        console.log("country: " + currentCountry);
+        console.log("age: " + currentAge);
         if (currentAge && currentCountry)
             draw(getCountOfDays(currentAge), getCountOfDays(getTotalAge(currentCountry)))
     }
@@ -97,6 +103,7 @@ title: life expectancy visualization
         init(null, age)
     }
 
+    window.onload = () => init(null, null);
 </script>
 
 <div style="
@@ -104,8 +111,7 @@ title: life expectancy visualization
       justify-content: center;
       margin: auto;
       width: 100%;
-      padding-top: 30px;"
-     onload="init();">
+      padding-top: 10px;">
 
     <div>
         <canvas id="canvas"
@@ -113,7 +119,7 @@ title: life expectancy visualization
         </canvas>
     </div>
 
-    <div style="padding-left: 50px">
+    <div style="padding-left: 20px">
         <div style="padding-top: 10px">
             <label for="current_country">country where you live:</label>
             <form style="padding-top: 10px">
