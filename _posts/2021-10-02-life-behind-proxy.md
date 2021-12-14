@@ -151,3 +151,13 @@ You may have some troubles because of wrong SSL certificates.
 To say PIP to ignore this type of errors, you can also pass the param with all used repositories: 
 `--trusted-host=pipy.org --trusted-host=files.pythonhosted.org ...`.   
 
+
+### [npm](https://www.npmjs.com/) package manager for javascript projects. 
+
+To work with npm behind proxy, you should type only 3 commands:
+
+```bash
+npm config set strict-ssl false
+npm config set https-proxy http://<PROXY_USER>:<PROXY_PASS>@<PROXY_URL>:<PROXY_PORT>
+npm config set http-proxy http://<PROXY_USER>:<PROXY_PASS>@<PROXY_URL>:<PROXY_PORT>
+```
