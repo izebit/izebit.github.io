@@ -4,6 +4,13 @@ category: java
 title: Hand-made collector
 ---
 
+<img src="/assets/img/custom-collector.jpg" alt="custom collector"/>
+
+<sub><sup>
+Photo by [Snejina Nikolova](https://unsplash.com/@sknart?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText) on Unsplash
+</sup></sub>
+
+
 After release java 1.8, we can work with collection with stream API. 
 By this way, we are able to create a sequence of operations that are applied to elements from a some source such 
 as collection, generating function to create either finite or infinite sequence, lines from a file etc. 
@@ -24,13 +31,13 @@ Our goal is to write a custom collector by our own. The new collector will group
 First, we should get to know the interface `java.util.stream.Collector` that we will implement.
 
 ```java
-interface Collector&lt;T,A,R&gt; {
-        Supplier&lt;A&gt;          supplier()
-        BiConsumer&lt;A,T&gt;      acumulator()
-        BinaryOperator&lt;A&gt;    combiner()
-        Function&lt;A,R&gt;        finisher()
-        Set&lt;Characteristics&gt; characteristics()
-        }
+interface Collector<T,A,R> {
+        Supplier<A>          supplier();
+        BiConsumer<A,T>      accumulator();
+        BinaryOperator<A>    combiner();
+        Function<A,R>        finisher();
+        Set<Characteristics> characteristics();
+}
 ```
 
 There are only five signatures. Some of them are not supposed to be implemented. 
@@ -53,14 +60,14 @@ By now, we know everything what to need to implement our own collector. Let us s
 
 ```java
 public final class CustomCollectorBuilder {
-    private final Map&lt;Character, Set&lt;String&gt;&gt; set;
+    private final Map<Character, Set<String>> set;
  
     public CustomCollectorBuilder() {
-        this.set = new HashMap&lt;&gt;();
+        this.set = new HashMap<>();
     }
   
     public void add(String str) {
-        Set&lt;String&gt; subSet = getSubset(str);
+        Set<String> subSet = getSubset(str);
         
         if (subSet == null) 
             return;
@@ -68,27 +75,27 @@ public final class CustomCollectorBuilder {
         subSet.add(str);
     }
   
-    public CustomCollectorBuilder addAll(Map&lt;Character, Set&lt;String&gt;&gt; collection) {
-        for (Map.Entry&lt;Character, Set&lt;String&gt;&gt; entry : collection.entrySet()) {
-            Set&lt;String&gt; subSet = getSubset(entry.getKey());
+    public CustomCollectorBuilder addAll(Map<Character, Set<String>> collection) {
+        for (Map.Entry<Character, Set<String>> entry : collection.entrySet()) {
+            Set<String> subSet = getSubset(entry.getKey());
             subSet.addAll(entry.getValue());
         }
         return this;
     }
             
-    public Map&lt;Character, Set&lt;String&gt;&gt; build() {
+    public Map<Character, Set<String>> build() {
         return this.set;
     }
   
-    private Set&lt;String&gt; getSubset(String str) {
+    private Set<String> getSubset(String str) {
         if (str == null || str.length() == 0) 
             return null;
         return getSubset(str.charAt(0));
     }
-    private Set&lt;String&gt; getSubset(Character key) {
-        Set&lt;String&gt; subSet = set.get(key);
+    private Set<String> getSubset(Character key) {
+        Set<String> subSet = set.get(key);
         if (subSet == null) {
-            subSet = new HashSet&lt;&gt;();
+            subSet = new HashSet<>();
             set.put(key, subSet);
         }
         return subSet;
@@ -101,30 +108,32 @@ I hope this code is clear for you and you do not have problems with understandin
 The next step is to write the collector. 
 
 ```java
-public final class CustomCollector implements Collector&lt;String, CustomCollector.CustomCollectorBuilder, Map&lt;Character, Set&lt;String&gt;&gt;&gt; {
+public final class CustomCollector implements Collector<String, 
+                                                        CustomCollectorBuilder, 
+                                                        Map<Character, Set<String>>> {
 
         @Override
-        public Supplier&lt;CustomCollectorBuilder&gt; supplier() {
+        public Supplier<CustomCollectorBuilder> supplier() {
             return CustomCollectorBuilder::new;
         }
 
         @Override
-        public BiConsumer&lt;CustomCollectorBuilder, String&gt; accumulator() {
+        public BiConsumer<CustomCollectorBuilder, String> accumulator() {
             return CustomCollectorBuilder::add;
         }
 
         @Override
-        public BinaryOperator&lt;CustomCollectorBuilder&gt; combiner() {
-            return (first, second) -&gt; first.addAll(second.build());
+        public BinaryOperator<CustomCollectorBuilder> combiner() {
+            return (first, second) -> first.addAll(second.build());
         }
 
         @Override
-        public Function&lt;CustomCollectorBuilder, Map&lt;Character, Set&lt;String&gt;&gt;&gt; finisher() {
+        public Function<CustomCollectorBuilder, Map<Character, Set<String>>> finisher() {
             return CustomCollectorBuilder::build;
         }
 
         @Override
-        public Set&lt;Characteristics&gt; characteristics() {
+        public Set<Characteristics> characteristics() {
             return EnumSet.of(Characteristics.CONCURRENT, Characteristics.UNORDERED);
         }
 }
@@ -137,8 +146,8 @@ That is all what I wanted to share with you. The example of usage of the new col
 
 
 ```java
-Collection&lt;String&gt; strings = Arrays.asList("apple", "orange", "banana", "pear", "peach");
-Map&lt;Character, Set&lt;String&gt;&gt; result = strings
+Collection<String> strings = Arrays.asList("apple", "orange", "banana", "pear", "peach");
+Map<Character, Set<String>> result = strings
                                             .stream()
                                             .collect(new CustomCollector());
 

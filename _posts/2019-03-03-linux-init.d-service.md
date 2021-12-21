@@ -51,7 +51,7 @@ The template of the script is as follows:
 NAME="my-service"
 APPLICATION_PATH="/opt/my-super-program"
 PID_FILE="$APPLICATION_PATH/file.pid"
-COMMAND="/usr/bin/python $APPLICATION_PATH/script.py 2&gt;&amp;1 &gt; /dev/null &amp; "
+COMMAND="/usr/bin/python $APPLICATION_PATH/script.py 2> &1 > /dev/null & "
 
 
 # run the program and write its pid to a file.
@@ -59,7 +59,7 @@ start() {
     echo "Starting $NAME"
     eval $COMMAND
     PID=$(pgrep -f $NAME) 
-    echo $PID &gt;&gt; $PID_FILE
+    echo $PID >> $PID_FILE
     RETVAL=0
 }
 
@@ -122,7 +122,7 @@ exit $RETVAL
 
 Given template is denoted to create a service that is started from the directory __APPLICATION_PATH__ by the command __COMMAND__.
 To check the status of the process, __PID_FILE__ is needed. The file contains a pid value of running process. 
-Important, the program has to be run as a daemon and does not print information to console. The prefix _2&gt;&amp;1 &gt; /dev/null &amp;_ does exactly 
+Important, the program has to be run as a daemon and does not print information to console. The prefix `_2> &1 > /dev/null &` does exactly 
 what we need.
 
 From the previous script, we can notice that the script involves 3 parts:
