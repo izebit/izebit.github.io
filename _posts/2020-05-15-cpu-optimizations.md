@@ -17,15 +17,13 @@ The goal of this article is to cover some cpu optimizations from java developer'
 Let's look at the next code:
 
 ```java
-private static int countOfElementsLessThen(final int value,
-final int[]array){
-        int result=0;
-        for(int anArray:array)
-        if(anArray<value)
-        result++;
-
-        return result;
-        }
+private static int countOfElementsLessThen(final int value, final int[] array){
+    int result=0;
+    for(int anArray : array)
+        if (anArray < value)
+            result++;
+    return result;
+}
 ```
 
 The method looks pretty good and at the first sight, there is nothing to worry about. Yet this point is delusive.
@@ -110,12 +108,11 @@ different cores.
 To make the explanation clear, suppose there is an object:
 
 ```java
-Tuple unoptimizedTuple=new Tuple(){
-private volatile int firstValue;
-private volatile int secondValue;
-
+Tuple unoptimizedTuple = new Tuple(){
+        private volatile int firstValue;
+        private volatile int secondValue;
         //other methods
-        };
+    };
 ```
 
 In case, if one tread updates field `firstValue` and another one updates field `secondValue` of the same object, we can
@@ -123,14 +120,13 @@ observe the false sharing effect. To avoid it, we can align an object size of th
 After it, the fields take place in different cache lines. There is one of possible solutions:
 
 ```java
-Tuple optimizedTuple=new Tuple(){
-private volatile int firstValue;
-//non-used fields for aligning
-private long p1,p2,p3,p4,p5,p6,p7,p8;
-private volatile int secondValue;
-
+Tuple optimizedTuple = new Tuple(){
+        private volatile int firstValue;
+        //non-used fields for aligning
+        private long p1,p2,p3,p4,p5,p6,p7,p8;
+        private volatile int secondValue;
         //other
-        };
+    };
 ```
 
 Let's compare the difference:
