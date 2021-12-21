@@ -36,7 +36,7 @@ public String pack(final byte[] data) {
 ```
 
 As you can see, the method deserializes byte array into string.
-The main point here is to convert 2 bytes to 1 char since the size of char in java is 2 bytes.
+The main point here is to convert 2 bytes to 1 char since the size of char in java is 2 bytes. 
 
 I have faced that execution of the method is significantly slower on byte arrays with odd length than 
 on byte arrays with not odd length.
@@ -80,7 +80,8 @@ for (int index = 0; index < countOfIteration; index++) {
 }
 ```
 
-After the changes, JIT does not have any chances. It generates assembler code with vector instructions all the time 
+After making the changes, JIT does not have any chances. 
+It started generate assembler code with vector instructions all the time 
 regardless of a length of a byte array.
 
 The table below shows the difference.
