@@ -1,7 +1,7 @@
 ---
 layout: post
 category: jvm
-title: not obvious JIT optimizations
+title: not evident JIT optimizations
 ---
 
 I would like to write about an interesting thing that I have found at my work.
