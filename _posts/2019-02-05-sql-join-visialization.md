@@ -206,3 +206,5 @@ from phones;
 name | phone
 ------------------
 ```
+
+[Read more on types of joins](https://izebit.ru/types-of-joins.html) 
