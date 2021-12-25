@@ -14,8 +14,7 @@ Photo by [Snejina Nikolova](https://unsplash.com/@sknart?utm_source=unsplash&utm
 After release java 1.8, we can work with collection with stream API. 
 By this way, we are able to create a sequence of operations that are applied to elements from a some source such 
 as collection, generating function to create either finite or infinite sequence, lines from a file etc. 
-This topic is very broad and discussing it is out of the box and the current article 
-is not supposed to cover it. 
+This topic is very broad and discussing it is out of the scope of the current article, and we are not going to talk about it. 
 
 
 In this article we are going to look at the [Collectors](https://docs.oracle.com/javase/8/docs/api/java/util/stream/Collector.html) closely. 
