@@ -1,7 +1,7 @@
 ---
 layout: post
 category: java
-title: type of references
+title: types of references
 ---
 
 
