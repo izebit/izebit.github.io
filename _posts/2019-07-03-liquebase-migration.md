@@ -18,7 +18,7 @@ sh liquibase.sh --driver=com.mysql.jdbc.Driver \
       --url="<database url, example jdbc:mysql://localhost:3306/test_bd>" \
       --username=<username> \
       --password=<password> \
-      --diffTypes="tables, views, columns, indexes, foreign keys, primarykeys, uniqueconstraints, data" 
+      --diffTypes="tables, views, columns, indexes, foreign keys, primary keys, unique constraints, data" 
       generateChangeLog
 ```
 
