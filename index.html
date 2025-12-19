@@ -697,18 +697,14 @@ layout: null
 
         <section class="tile-small">
             <div class="tile-pad d-flex flex-column gap-3 me-0 me-md-5">
-                <div class="card-soft shadow-sm hover-lift">
-                    <div>Designing Inclusive Experiences</div>
-                    <div class="text-muted">Jan 1, 2023</div>
-                </div>
-                <div class="card-soft shadow-sm hover-lift">
-                    <div class="fw-semibold">Creating Effective Onboarding</div>
-                    <div class="text-muted">Apr 8, 2022</div>
-                </div>
-                <div class="card-soft shadow-sm hover-lift">
-                    <div class="fw-semibold">Create a Landing Page That Performs</div>
-                    <div class="text-muted">Mar 15, 2022</div>
-                </div>
+                {%- for post in site.posts limit:5  -%}
+                    <div class="card-soft shadow-sm hover-lift my-auto">
+                        <a href="{{ post.url }}" class="text-decoration-none text-reset">
+                            <div class="fw-bold">{{ post.title }}</div>
+                            <div class="text-muted">{{ post.date | date_to_string }}</div>
+                        </a>
+                    </div>
+                {%- endfor -%}
             </div>
         </section>
     </main>
