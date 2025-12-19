@@ -7,8 +7,8 @@ title: "Artem Konovalov – Software Engineer"
     <main class="track">
 
         <section class="tile tile-big shadow-sm">
-            <div class="tile-pad d-flex flex-column justify-content-between">
-                <div class="d-flex gap-3 align-items-center m-4">
+            <div class="tile-pad d-grid flex-column justify-content-between" style="position: relative;">
+                <div class="d-flex gap-3 align-items-center ms-4 mt-4">
                     <div>
                         <img src="/assets/logos/photos/photo.jpg"
                              class="rounded-circle object-fit-cover"
@@ -24,7 +24,7 @@ title: "Artem Konovalov – Software Engineer"
                     </div>
                 </div>
 
-                <div class="m-4 col responsive-text">
+                <div class="m-4 col responsive-text" style="z-index: 1;">
                     <p>Experienced software engineer focused on building and operating reliable, scalable systems, with
                         practical experience in data engineering.
                     </p>
@@ -32,7 +32,10 @@ title: "Artem Konovalov – Software Engineer"
                         systems.</p>
                 </div>
 
-                <div class="m-4 mt-auto mb-4">
+                <div class="globe">
+                    {% include globe.html %}
+                </div>
+                <div class="m-4 mt-auto mb-4" style="z-index: 1;">
                     <div>
                         Based in Florianópolis, Santa Catarina, Brazil 🇧🇷<br/>
                     </div>
@@ -433,7 +436,7 @@ title: "Artem Konovalov – Software Engineer"
                 <div class="img-wrap">
                     <img
                         src="/assets/logos/photos/coffee.png"
-                        alt="my photo"
+                        alt="my coffee"
                         class="w-100 h-100 object-fit-cover">
                 </div>
             </div>
@@ -441,13 +444,13 @@ title: "Artem Konovalov – Software Engineer"
 
         <section class="tile-small">
             <div class="tile-pad d-flex flex-column gap-3 me-0 me-md-5">
-                {%- for post in site.posts limit:5  -%}
-                    <div class="card-soft shadow-sm hover-lift my-auto">
-                        <a href="{{ post.url }}" class="text-decoration-none text-reset">
-                            <div class="fw-bold">{{ post.title }}</div>
-                            <div class="text-muted">{{ post.date | date_to_string }}</div>
-                        </a>
-                    </div>
+                {%- for post in site.posts limit:5 -%}
+                <div class="card-soft shadow-sm hover-lift my-auto">
+                    <a href="{{ post.url }}" class="text-decoration-none text-reset">
+                        <div class="fw-bold">{{ post.title }}</div>
+                        <div class="text-muted">{{ post.date | date_to_string }}</div>
+                    </a>
+                </div>
                 {%- endfor -%}
             </div>
         </section>

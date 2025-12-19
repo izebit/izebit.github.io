@@ -1,0 +1,142 @@
+
+<canvas id="c" width="440" height="440"></canvas>
+
+<script>
+    (() => {
+      const canvas = document.getElementById("c");
+      const ctx = canvas.getContext("2d", { alpha: true });
+
+      const W = canvas.width, H = canvas.height;
+      const CX = W/2, CY = H/2;
+
+      const R = Math.min(W, H) * 0.42;  // радиус шара
+      const DOT_R = 1.35;               // размер точки
+      const GRID_LAT = 0.040;           // шаг по широте (меньше = больше точек)
+      const SPEED = 0.0035;             // скорость вращения
+      const LAND_THRESHOLD = 210;       // насколько белый пиксель считать “сушей”
+      const EDGE_FADE = 0.20;           // мягкость затухания к краю шара
+      const TILT = -0.15;
+
+      let rot = 0;
+
+      const img = new Image();
+      img.src = "/assets/logos/photos/world.png";
+
+      img.onload = () => {
+        const mw = img.naturalWidth;
+        const mh = img.naturalHeight;
+
+        const mapCanvas = document.createElement("canvas");
+        mapCanvas.width = mw;
+        mapCanvas.height = mh;
+        const mctx = mapCanvas.getContext("2d", { willReadFrequently: true });
+        mctx.drawImage(img, 0, 0);
+        const data = mctx.getImageData(0, 0, mw, mh).data;
+
+        // Белое = суша
+        function isLand(lon, lat) {
+          const x = Math.floor(((lon + Math.PI) / (2*Math.PI)) * (mw - 1));
+          const y = Math.floor(((Math.PI/2 - lat) / Math.PI) * (mh - 1));
+          const i = (y * mw + x) * 4;
+          const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+          if (a < 10) return false;
+          const lum = (r + g + b) / 3;
+          return lum >= LAND_THRESHOLD;
+        }
+
+        const points = [];
+        for (let lat = -Math.PI/2; lat <= Math.PI/2; lat += GRID_LAT) {
+          const lonStep = GRID_LAT / Math.max(0.25, Math.cos(lat));
+          for (let lon = -Math.PI; lon <= Math.PI; lon += lonStep) {
+            if (!isLand(lon, lat)) continue;
+            points.push({ lon, lat });
+          }
+        }
+
+        function drawGlobeBody() {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(CX, CY, R, 0, Math.PI * 2);
+          ctx.clip();
+
+          const g = ctx.createRadialGradient(
+            CX - R * 0.35, CY - R * 0.35, R * 0.12,
+            CX, CY, R
+          );
+          g.addColorStop(0, "#ffffff");
+          g.addColorStop(1, "#ededed");
+
+          ctx.fillStyle = g;
+          ctx.fillRect(CX - R, CY - R, R*2, R*2);
+
+          const v = ctx.createRadialGradient(CX, CY, R*0.70, CX, CY, R);
+          v.addColorStop(0, "rgba(0,0,0,0)");
+          v.addColorStop(1, "rgba(0,0,0,0.10)");
+          ctx.fillStyle = v;
+          ctx.beginPath();
+          ctx.arc(CX, CY, R, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.restore();
+        }
+
+        function project(lon, lat) {
+          const L = lon + rot;
+
+          let x = Math.cos(lat) * Math.sin(L);
+          let y = Math.sin(lat);
+          let z = Math.cos(lat) * Math.cos(L);
+
+          const cosT = Math.cos(TILT);
+          const sinT = Math.sin(TILT);
+
+          const y2 = y * cosT - z * sinT;
+          const z2 = y * sinT + z * cosT;
+
+          return { x, y: y2, z: z2 };
+        }
+
+        function frame() {
+          ctx.clearRect(0, 0, W, H);
+
+          drawGlobeBody();
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(CX, CY, R, 0, Math.PI*2);
+          ctx.clip();
+
+          ctx.fillStyle = "#111";
+
+          for (const pt of points) {
+            const p = project(pt.lon, pt.lat);
+
+            if (p.z <= 0) continue;
+
+            const x = CX + p.x * R;
+            const y = CY - p.y * R;
+
+            const alpha = Math.min(1, Math.max(0, (p.z + EDGE_FADE)));
+            ctx.globalAlpha = alpha;
+
+            ctx.beginPath();
+            ctx.arc(x, y, DOT_R, 0, Math.PI*2);
+            ctx.fill();
+          }
+
+          ctx.restore();
+
+          rot += SPEED;
+          requestAnimationFrame(frame);
+        }
+
+        frame();
+      };
+
+      img.onerror = () => {
+        ctx.fillStyle = "#111";
+        ctx.font = "14px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+        ctx.fillText("Не нашёл world.png", 20, 40);
+      };
+    })();
+</script>

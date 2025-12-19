@@ -163,7 +163,6 @@ body{
 }
 
 
-
 .marquee {
   overflow: hidden;
   width: 100%;
@@ -183,10 +182,13 @@ body{
   height: 44px;
   margin-right: 100px;
 
+  @media (max-width: 767.98px){
+        margin-right: 40px;
+  }
+
   display: flex;
   align-items: center;
   justify-content: center;
-
 }
 
 @keyframes marquee {
@@ -220,5 +222,24 @@ body{
     width: 100%;
     @media (max-width: 767.98px){
         height: 212px;
+    }
+}
+
+.globe {
+    grid-area: 1 / 1;
+    position: absolute;
+    z-index: 0;
+    pointer-events: none;
+
+    right: -150px;
+    bottom: -220px;
+    width: 440px;
+    height: 440px;
+
+    @media (max-width: 767.98px){
+        right: 30px;
+        bottom: 30px;
+        width: 150px;
+        height: 150px;
     }
 }
