@@ -1,23 +1,46 @@
 ---
 layout: default
 ---
+<div class="container content pb-5 pt-5 pb-md-4">
 
-<div class="post">
-  <h1 class="post-title">{{ page.title }}</h1>
-  {% include post-info.html %}
-  {{ content }}
+    <div class="row">
+      <h1>{{ page.title }}</h1>
+      {% include post-info.html %}
+        <div class="fs-5">
+            {{ content }}
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h6 class="mb-3 fs-5">Related posts</h6>
+
+        <div class="row g-3">
+            {% for post in site.related_posts limit:10 %}
+            <div class="col-12 col-md-4">
+                <a href="{{ post.url }}" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            {{ post.title }}
+                        </div>
+                        <div class="small text-muted">
+                            {{ post.date | date: "%b %d, %Y" }}
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 </div>
 
-<div class="related">
-  <h2>Related Posts</h2>
-  <ul class="related-posts">
-    {% for post in site.related_posts limit:10 %}
-      <li>
-          <a href="{{ post.url }}">
-            {{ post.title }}
-            <small>{{ post.date | date_to_string }}</small>
-          </a>
-      </li>
-    {% endfor %}
-  </ul>
-</div>
+<footer class="border-top mt-3">
+    <div class="container py-4 text-center">
+        <a href="/" class="fs-5 text-decoration-none text-reset d-block mb-1">
+            © {{ site.time | date: "%Y" }} Artem Konovalov
+        </a>
+
+        <div class="text-muted">
+            {{ site.description }}
+        </div>
+    </div>
+</footer>

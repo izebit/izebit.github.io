@@ -8,6 +8,7 @@ kramdown:
 permalink: /:slug.html
 
 # Setup
+title: Artem Konovalov – Software Engineer
 tagline: |
   posts on JVM based languages, concurrent programming, 
   functional programming and stuff
