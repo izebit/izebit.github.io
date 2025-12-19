@@ -8,7 +8,6 @@ kramdown:
 permalink: /:slug.html
 
 # Setup
-title:            Artem Konovalov
 tagline: |
   posts on JVM based languages, concurrent programming, 
   functional programming and stuff
@@ -19,20 +18,8 @@ url:              https://izebit.ru
 baseurl:          /
 
 author:
-  name:  'Artem Konovalov'
+  name: 'Artem Konovalov'
   email: izebit@gmail.com
-
-linkedin: https://www.linkedin.com/in/conovart/
-github: https://github.com/izebit
-stackoverflow: https://ru.stackoverflow.com/users/10353/artem
-certificates: https://www.credly.com/users/artem-konovalov/badges
-
-social:
-  name: Artem Konovalov
-  links:
-    - https://www.linkedin.com/in/conovart/
-    - https://github.com/izebit
-    - https://izebit.ru
 
 logo: /assets/logos/photos/main-thumbnail.jpg
 
