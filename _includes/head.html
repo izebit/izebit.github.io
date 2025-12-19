@@ -8,12 +8,11 @@
 
     {% seo %}
 
-    <!-- CSS -->
     <link rel="stylesheet" href="{{ site.baseurl }}assets/css/syntax.css">
+    {% if page.url == "/" %}
+        <link rel="stylesheet" href="{{ site.baseurl }}assets/css/main-page.css">
+    {% endif %}
 
-    <link rel="stylesheet" href="{{ site.baseurl }}assets/css/main-page.css">
-
-    <!-- Icons -->
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon_icons/favicon-16x16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon_icons/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="48x48" href="/assets/logos/favicon_icons/favicon-48x48.png">
