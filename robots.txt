@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /assets/docs/
+Sitemap: https://izebit.ru/sitemap.xml

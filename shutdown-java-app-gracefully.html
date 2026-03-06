@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+    <head>
+    <meta charset="utf-8">
+    <meta property="og:locale" content="en_US">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>How to stop java application gracefully | Artem Konovalov – Software Engineer</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="How to stop java application gracefully" />
+<meta name="author" content="Artem Konovalov" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This website is a personal blog. Mainly there are posts about java, but you can find ones on other topics." />
+<meta property="og:description" content="This website is a personal blog. Mainly there are posts about java, but you can find ones on other topics." />
+<link rel="canonical" href="https://izebit.ru/shutdown-java-app-gracefully.html" />
+<meta property="og:url" content="https://izebit.ru/shutdown-java-app-gracefully.html" />
+<meta property="og:site_name" content="Artem Konovalov – Software Engineer" />
+<meta property="og:image" content="https://izebit.ru/assets/img/shutdown-java-app.jpg" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-10-26T00:00:00-03:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="https://izebit.ru/assets/img/shutdown-java-app.jpg" />
+<meta property="twitter:title" content="How to stop java application gracefully" />
+<meta name="google-site-verification" content="MGhCSoTWiTCeUdZ_2tNyZZ5dmg8Yn18pjFuo9HhksIw" />
+<meta name="yandex-verification" content="34c428376cb827b4" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Artem Konovalov"},"dateModified":"2020-10-26T00:00:00-03:00","datePublished":"2020-10-26T00:00:00-03:00","description":"This website is a personal blog. Mainly there are posts about java, but you can find ones on other topics.","headline":"How to stop java application gracefully","image":"https://izebit.ru/assets/img/shutdown-java-app.jpg","mainEntityOfPage":{"@type":"WebPage","@id":"https://izebit.ru/shutdown-java-app-gracefully.html"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://izebit.ru/assets/logos/photos/main-thumbnail.jpg"},"name":"Artem Konovalov"},"url":"https://izebit.ru/shutdown-java-app-gracefully.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <link rel="stylesheet" href="/assets/css/syntax.css">
+    
+        <link rel="stylesheet" href="/assets/css/content.css">
+    
+
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon_icons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon_icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/logos/favicon_icons/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/logos/favicon_icons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="144x144" href="/assets/logos/favicon_icons/favicon-144x144.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/logos/favicon_icons/apple-touch-icon.png">
+
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"></script>
+
+    <script type="text/javascript" id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script><!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-00VK83F1ZX"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-00VK83F1ZX');
+</script></head>
+
+
+    <body>
+
+    <div class="container content pb-5 pt-5 pb-md-4">
+
+    <div class="row">
+      <h1>How to stop java application gracefully</h1>
+      
+
+
+
+
+<div class="pb-5 pt-md-3 pt-1 pb-md-4" >
+   📅 26 Oct 2020 🕑 2 min  read
+</div>
+
+
+        <div class="fs-5">
+            <p><img src="/assets/img/shutdown-java-app.jpg" alt="stop java app properly" /></p>
+
+<p><sub><sup>
+Photo by <a href="https://unsplash.com/@jack_anstey" rel="nofollow">Jack Anstey</a> on Unsplash
+</sup></sub></p>
+
+<p>Today we are talking about how to stop java process gracefully.</p>
+
+<p>How can we stop your application? The first thing comes to my mind is to kill 
+the application by next shell command: <code class="language-plaintext highlighter-rouge">kill -9 &lt;application-pid&gt;</code>. 
+It is possible to save PID app to somewhere, for instance into a file, and then read PID and execute the command. 
+However, in reality sometimes it’s an appropriate way. Imagine the situation - there is an application and this app has some work to do. 
+We can’t interrupt its work because, in this case, the state would be inconsistent. 
+For example, the application is copying files or performing some transactions or something like that. 
+We have to wait the moment when all work has been done, or the app will be ready to stop working on its own.</p>
+
+<p>The code below illustrates the logic of app work:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">boolean</span> <span class="n">isRunning</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">perform</span><span class="o">(){</span>
+    <span class="k">while</span><span class="o">(</span><span class="n">isRunning</span><span class="o">){</span>
+      <span class="n">val</span> <span class="n">task</span> <span class="o">=</span> <span class="n">getNextTask</span><span class="o">();</span>
+      <span class="k">if</span> <span class="o">(</span><span class="n">task</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+        <span class="nc">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span>
+      <span class="k">else</span>
+        <span class="n">task</span><span class="o">.</span><span class="na">execute</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="what-steps-do-we-have-to-do-in-order-to-stop-app-gracefully">What steps do we have to do in order to stop app gracefully?</h3>
+
+<p>First of all, we need to set isRunning to true, then we wait until a task is done.
+It’s pretty clear, but what initiates this activity? We can send a system termination signal to an application.
+As I mentioned earlier, kill <pid application=""> is an excellent candidate to do it. Please be attentive,
+the command without flag `-9` . It's crucial because `kill -9` doesn't let us handle this signal at all.</pid></p>
+
+<p>In java, we can handle a termination signal and add some callback if an application received 
+the signal from the operating system or somebody else. <code class="language-plaintext highlighter-rouge">java.misc.Signal</code> does exactly want we need. The code below creates callback.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">Signal</span><span class="o">.</span><span class="na">handle</span><span class="o">(</span><span class="k">new</span> <span class="nc">Signal</span><span class="o">(</span><span class="s">"TERM"</span><span class="o">),</span> <span class="k">new</span> <span class="nc">SignalHandler</span><span class="o">()</span> <span class="o">{</span>
+             <span class="nd">@Override</span>
+             <span class="kd">public</span> <span class="kt">void</span> <span class="nf">handle</span><span class="o">(</span><span class="kd">final</span> <span class="nc">Signal</span> <span class="n">signal</span><span class="o">)</span> <span class="o">{</span>
+                 <span class="n">stopServiceAndWaitUtilTaskIsDone</span><span class="o">();</span>
+             <span class="o">}</span>
+<span class="o">});</span>
+</code></pre></div></div>
+<p><strong>stopServiceAndWaitUtilTaskIsDone</strong> should set <strong>isRunning</strong> to <strong>false</strong> and wait until a task is done.
+The second one can be implemented with flags as well. I leave it to do on your own.</p>
+
+<p>By now, we have everything to stop an application properly. Thank you for reading, see you soon 🖖</p>
+
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h6 class="mb-3 fs-5">Related posts</h6>
+
+        <div class="row g-3">
+            
+            <div class="col-12 col-md-4">
+                <a href="/concurrency-models.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            3 Concurrency Models
+                        </div>
+                        <div class="small text-muted">
+                            Aug 11, 2024
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/is-three-tier-architecture-anti-pattern.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Is 3-tier Architecture anti-pattern?
+                        </div>
+                        <div class="small text-muted">
+                            Oct 24, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/garbage-collectors-in-java.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Garbage Collectors in JVM-based languages
+                        </div>
+                        <div class="small text-muted">
+                            Oct 16, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-expectancy-visualization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life expectancy visualization
+                        </div>
+                        <div class="small text-muted">
+                            Nov 26, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-behind-proxy.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life behind proxy
+                        </div>
+                        <div class="small text-muted">
+                            Oct 02, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/reactive-spring-video.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Reactive spring [ru]
+                        </div>
+                        <div class="small text-muted">
+                            Jan 12, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/tf-idf-with-hadoop-streaming.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            TF-IDF with Hadoop Streaming
+                        </div>
+                        <div class="small text-muted">
+                            Jul 29, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/java-compile-optimization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Not evident JIT optimizations
+                        </div>
+                        <div class="small text-muted">
+                            Jun 11, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/cpu-optimizations.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            CPU optimizations
+                        </div>
+                        <div class="small text-muted">
+                            May 15, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/getting-started-with-selenide.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Getting started with Selenide
+                        </div>
+                        <div class="small text-muted">
+                            Apr 05, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<footer class="border-top mt-3">
+    <div class="container py-4 text-center">
+        <a href="/" class="fs-5 text-decoration-none text-reset d-block mb-1">
+            © 2026 Artem Konovalov
+        </a>
+
+        <div class="text-muted">
+            This website is a personal blog. Mainly there are
+posts about java, but you can find ones on other topics.
+
+        </div>
+    </div>
+</footer>
+
+
+    </body>
+</html>

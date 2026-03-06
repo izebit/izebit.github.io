@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+    <head>
+    <meta charset="utf-8">
+    <meta property="og:locale" content="en_US">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Hand-made collector | Artem Konovalov – Software Engineer</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Hand-made collector" />
+<meta name="author" content="Artem Konovalov" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This website is a personal blog. Mainly there are posts about java, but you can find ones on other topics." />
+<meta property="og:description" content="This website is a personal blog. Mainly there are posts about java, but you can find ones on other topics." />
+<link rel="canonical" href="https://izebit.ru/hand-made-collector.html" />
+<meta property="og:url" content="https://izebit.ru/hand-made-collector.html" />
+<meta property="og:site_name" content="Artem Konovalov – Software Engineer" />
+<meta property="og:image" content="https://izebit.ru/assets/img/custom-collector.jpg" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-04-02T00:00:00-03:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="https://izebit.ru/assets/img/custom-collector.jpg" />
+<meta property="twitter:title" content="Hand-made collector" />
+<meta name="google-site-verification" content="MGhCSoTWiTCeUdZ_2tNyZZ5dmg8Yn18pjFuo9HhksIw" />
+<meta name="yandex-verification" content="34c428376cb827b4" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Artem Konovalov"},"dateModified":"2019-04-02T00:00:00-03:00","datePublished":"2019-04-02T00:00:00-03:00","description":"This website is a personal blog. Mainly there are posts about java, but you can find ones on other topics.","headline":"Hand-made collector","image":"https://izebit.ru/assets/img/custom-collector.jpg","mainEntityOfPage":{"@type":"WebPage","@id":"https://izebit.ru/hand-made-collector.html"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://izebit.ru/assets/logos/photos/main-thumbnail.jpg"},"name":"Artem Konovalov"},"url":"https://izebit.ru/hand-made-collector.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <link rel="stylesheet" href="/assets/css/syntax.css">
+    
+        <link rel="stylesheet" href="/assets/css/content.css">
+    
+
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon_icons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon_icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/logos/favicon_icons/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/logos/favicon_icons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="144x144" href="/assets/logos/favicon_icons/favicon-144x144.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/logos/favicon_icons/apple-touch-icon.png">
+
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"></script>
+
+    <script type="text/javascript" id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script><!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-00VK83F1ZX"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-00VK83F1ZX');
+</script></head>
+
+
+    <body>
+
+    <div class="container content pb-5 pt-5 pb-md-4">
+
+    <div class="row">
+      <h1>Hand-made collector</h1>
+      
+
+
+
+
+<div class="pb-5 pt-md-3 pt-1 pb-md-4" >
+   📅 02 Apr 2019 🕑 6 min  read
+</div>
+
+
+        <div class="fs-5">
+            <p><img src="/assets/img/custom-collector.jpg" alt="custom collector" /></p>
+
+<p><sub><sup>
+Photo by <a href="https://unsplash.com/@sknart" rel="nofollow">Snejina Nikolova</a> on Unsplash
+</sup></sub></p>
+
+<p>After release java 1.8, we can work with collection with stream API. 
+By this way, we are able to create a sequence of operations that are applied to elements from a some source such 
+as collection, generating function to create either finite or infinite sequence, lines from a file etc. 
+This topic is very broad and discussing it is out of the scope of the current article, and we are not going to talk about it.</p>
+
+<p>In this article we are going to look at the <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/Collector.html" rel="nofollow">Collectors</a> closely. 
+This kind of objects that let us create a result of performing the whole sequence of operations.</p>
+
+<p>Different types of collectors produce result in different way and different formats. There are already
+several collectors in <code class="language-plaintext highlighter-rouge">java.util.stream.Collectors</code> such as <strong>toList</strong> that creates a list of elements. 
+Also, some collectors has more complex implementation, for instance, <strong>groupBy</strong>  that groups elements 
+by some criteria.</p>
+
+<p>Our goal is to write a custom collector by our own. The new collector will group strings by the first letter.</p>
+
+<p>First, we should get to know the interface <code class="language-plaintext highlighter-rouge">java.util.stream.Collector</code> that we will implement.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">interface</span> <span class="nc">Collector</span><span class="o">&lt;</span><span class="no">T</span><span class="o">,</span><span class="no">A</span><span class="o">,</span><span class="no">R</span><span class="o">&gt;</span> <span class="o">{</span>
+        <span class="nc">Supplier</span><span class="o">&lt;</span><span class="no">A</span><span class="o">&gt;</span>          <span class="nf">supplier</span><span class="o">();</span>
+        <span class="nc">BiConsumer</span><span class="o">&lt;</span><span class="no">A</span><span class="o">,</span><span class="no">T</span><span class="o">&gt;</span>      <span class="nf">accumulator</span><span class="o">();</span>
+        <span class="nc">BinaryOperator</span><span class="o">&lt;</span><span class="no">A</span><span class="o">&gt;</span>    <span class="nf">combiner</span><span class="o">();</span>
+        <span class="nc">Function</span><span class="o">&lt;</span><span class="no">A</span><span class="o">,</span><span class="no">R</span><span class="o">&gt;</span>        <span class="nf">finisher</span><span class="o">();</span>
+        <span class="nc">Set</span><span class="o">&lt;</span><span class="nc">Characteristics</span><span class="o">&gt;</span> <span class="nf">characteristics</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>There are only five signatures. Some of them are not supposed to be implemented. 
+It is optional and needed only in some specific cases. These cases will be covered later.</p>
+
+<ol>
+  <li><strong>supplier()</strong> creates additional helper object that performs basic operations on elements.</li>
+  <li><strong>acumulator()</strong> . It combines the result that we calculated earlier and the current element of the stream. 
+It takes an object helper and the current element as parameters.</li>
+  <li><strong>combiner()</strong> . In case if stream is parallel, this function combines 
+the intermediate results performed by different threads.</li>
+  <li><strong>finisher()</strong> returns the final result of execution.</li>
+  <li><strong>characteristics()</strong> According to the name, it returns collector’s charactristics. It worths to list them:
+    <ul>
+      <li><em>CONCURRENT</em> the collector can work with parallel stream.</li>
+      <li><em>UNORDERED</em> the collector does not garantee the order of elements. It means if a stream has some order, 
+the final result does not nessasary have the same order.</li>
+      <li><em>IDENTITY_FINISH</em> If a collector has this characteristic, execution <strong>finisher()</strong> function is skipped.</li>
+    </ul>
+  </li>
+</ol>
+
+<p>By now, we know everything what to need to implement our own collector. Let us start with a class helper.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">CustomCollectorBuilder</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="nc">Map</span><span class="o">&lt;</span><span class="nc">Character</span><span class="o">,</span> <span class="nc">Set</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;&gt;</span> <span class="n">set</span><span class="o">;</span>
+ 
+    <span class="kd">public</span> <span class="nf">CustomCollectorBuilder</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">set</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">HashMap</span><span class="o">&lt;&gt;();</span>
+    <span class="o">}</span>
+  
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">add</span><span class="o">(</span><span class="nc">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Set</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">subSet</span> <span class="o">=</span> <span class="n">getSubset</span><span class="o">(</span><span class="n">str</span><span class="o">);</span>
+        
+        <span class="k">if</span> <span class="o">(</span><span class="n">subSet</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> 
+            <span class="k">return</span><span class="o">;</span>
+        
+        <span class="n">subSet</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">str</span><span class="o">);</span>
+    <span class="o">}</span>
+  
+    <span class="kd">public</span> <span class="nc">CustomCollectorBuilder</span> <span class="nf">addAll</span><span class="o">(</span><span class="nc">Map</span><span class="o">&lt;</span><span class="nc">Character</span><span class="o">,</span> <span class="nc">Set</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;&gt;</span> <span class="n">collection</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nc">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="nc">Character</span><span class="o">,</span> <span class="nc">Set</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;&gt;</span> <span class="n">entry</span> <span class="o">:</span> <span class="n">collection</span><span class="o">.</span><span class="na">entrySet</span><span class="o">())</span> <span class="o">{</span>
+            <span class="nc">Set</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">subSet</span> <span class="o">=</span> <span class="n">getSubset</span><span class="o">(</span><span class="n">entry</span><span class="o">.</span><span class="na">getKey</span><span class="o">());</span>
+            <span class="n">subSet</span><span class="o">.</span><span class="na">addAll</span><span class="o">(</span><span class="n">entry</span><span class="o">.</span><span class="na">getValue</span><span class="o">());</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="k">this</span><span class="o">;</span>
+    <span class="o">}</span>
+            
+    <span class="kd">public</span> <span class="nc">Map</span><span class="o">&lt;</span><span class="nc">Character</span><span class="o">,</span> <span class="nc">Set</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;&gt;</span> <span class="nf">build</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">set</span><span class="o">;</span>
+    <span class="o">}</span>
+  
+    <span class="kd">private</span> <span class="nc">Set</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="nf">getSubset</span><span class="o">(</span><span class="nc">String</span> <span class="n">str</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">str</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">str</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> 
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="k">return</span> <span class="nf">getSubset</span><span class="o">(</span><span class="n">str</span><span class="o">.</span><span class="na">charAt</span><span class="o">(</span><span class="mi">0</span><span class="o">));</span>
+    <span class="o">}</span>
+    <span class="kd">private</span> <span class="nc">Set</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="nf">getSubset</span><span class="o">(</span><span class="nc">Character</span> <span class="n">key</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Set</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">subSet</span> <span class="o">=</span> <span class="n">set</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">key</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">subSet</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">subSet</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">HashSet</span><span class="o">&lt;&gt;();</span>
+            <span class="n">set</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">key</span><span class="o">,</span> <span class="n">subSet</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">subSet</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>I hope this code is clear for you and you do not have problems with understanding it.</p>
+
+<p>The next step is to write the collector.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">CustomCollector</span> <span class="kd">implements</span> <span class="nc">Collector</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> 
+                                                        <span class="nc">CustomCollectorBuilder</span><span class="o">,</span> 
+                                                        <span class="nc">Map</span><span class="o">&lt;</span><span class="nc">Character</span><span class="o">,</span> <span class="nc">Set</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;&gt;&gt;</span> <span class="o">{</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="nc">Supplier</span><span class="o">&lt;</span><span class="nc">CustomCollectorBuilder</span><span class="o">&gt;</span> <span class="nf">supplier</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="nl">CustomCollectorBuilder:</span><span class="o">:</span><span class="k">new</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="nc">BiConsumer</span><span class="o">&lt;</span><span class="nc">CustomCollectorBuilder</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="nf">accumulator</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="nl">CustomCollectorBuilder:</span><span class="o">:</span><span class="n">add</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="nc">BinaryOperator</span><span class="o">&lt;</span><span class="nc">CustomCollectorBuilder</span><span class="o">&gt;</span> <span class="nf">combiner</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="o">(</span><span class="n">first</span><span class="o">,</span> <span class="n">second</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">first</span><span class="o">.</span><span class="na">addAll</span><span class="o">(</span><span class="n">second</span><span class="o">.</span><span class="na">build</span><span class="o">());</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="nc">Function</span><span class="o">&lt;</span><span class="nc">CustomCollectorBuilder</span><span class="o">,</span> <span class="nc">Map</span><span class="o">&lt;</span><span class="nc">Character</span><span class="o">,</span> <span class="nc">Set</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;&gt;&gt;</span> <span class="nf">finisher</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="nl">CustomCollectorBuilder:</span><span class="o">:</span><span class="n">build</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="nc">Set</span><span class="o">&lt;</span><span class="nc">Characteristics</span><span class="o">&gt;</span> <span class="nf">characteristics</span><span class="o">()</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="nc">EnumSet</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="nc">Characteristics</span><span class="o">.</span><span class="na">CONCURRENT</span><span class="o">,</span> <span class="nc">Characteristics</span><span class="o">.</span><span class="na">UNORDERED</span><span class="o">);</span>
+        <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>As you can notice, according to collector’s characteristics, 
+the collector works with parallel streams and does not guarantee any order of elements.</p>
+
+<p>That is all what I wanted to share with you. The example of usage of the new collector is demonstrated below:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">Collection</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">strings</span> <span class="o">=</span> <span class="nc">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="s">"apple"</span><span class="o">,</span> <span class="s">"orange"</span><span class="o">,</span> <span class="s">"banana"</span><span class="o">,</span> <span class="s">"pear"</span><span class="o">,</span> <span class="s">"peach"</span><span class="o">);</span>
+<span class="nc">Map</span><span class="o">&lt;</span><span class="nc">Character</span><span class="o">,</span> <span class="nc">Set</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="n">strings</span>
+                                            <span class="o">.</span><span class="na">stream</span><span class="o">()</span>
+                                            <span class="o">.</span><span class="na">collect</span><span class="o">(</span><span class="k">new</span> <span class="nc">CustomCollector</span><span class="o">());</span>
+
+<span class="k">for</span> <span class="o">(</span><span class="nc">Character</span> <span class="n">character</span> <span class="o">:</span> <span class="n">result</span><span class="o">.</span><span class="na">keySet</span><span class="o">())</span>
+    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">result</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">character</span><span class="o">));</span>
+</code></pre></div></div>
+
+<p>The result:</p>
+
+<blockquote>
+  <p>[pear, peach]  <br />
+[apple]  <br />
+[banana] <br />
+[orange]</p>
+</blockquote>
+
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h6 class="mb-3 fs-5">Related posts</h6>
+
+        <div class="row g-3">
+            
+            <div class="col-12 col-md-4">
+                <a href="/concurrency-models.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            3 Concurrency Models
+                        </div>
+                        <div class="small text-muted">
+                            Aug 11, 2024
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/is-three-tier-architecture-anti-pattern.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Is 3-tier Architecture anti-pattern?
+                        </div>
+                        <div class="small text-muted">
+                            Oct 24, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/garbage-collectors-in-java.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Garbage Collectors in JVM-based languages
+                        </div>
+                        <div class="small text-muted">
+                            Oct 16, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-expectancy-visualization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life expectancy visualization
+                        </div>
+                        <div class="small text-muted">
+                            Nov 26, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-behind-proxy.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life behind proxy
+                        </div>
+                        <div class="small text-muted">
+                            Oct 02, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/reactive-spring-video.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Reactive spring [ru]
+                        </div>
+                        <div class="small text-muted">
+                            Jan 12, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/shutdown-java-app-gracefully.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            How to stop java application gracefully
+                        </div>
+                        <div class="small text-muted">
+                            Oct 26, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/tf-idf-with-hadoop-streaming.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            TF-IDF with Hadoop Streaming
+                        </div>
+                        <div class="small text-muted">
+                            Jul 29, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/java-compile-optimization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Not evident JIT optimizations
+                        </div>
+                        <div class="small text-muted">
+                            Jun 11, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/cpu-optimizations.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            CPU optimizations
+                        </div>
+                        <div class="small text-muted">
+                            May 15, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<footer class="border-top mt-3">
+    <div class="container py-4 text-center">
+        <a href="/" class="fs-5 text-decoration-none text-reset d-block mb-1">
+            © 2026 Artem Konovalov
+        </a>
+
+        <div class="text-muted">
+            This website is a personal blog. Mainly there are
+posts about java, but you can find ones on other topics.
+
+        </div>
+    </div>
+</footer>
+
+
+    </body>
+</html>

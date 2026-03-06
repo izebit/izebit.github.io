@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+    <head>
+    <meta charset="utf-8">
+    <meta property="og:locale" content="en_US">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Proof of concept of incremental compilation with maven | Artem Konovalov – Software Engineer</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Proof of concept of incremental compilation with maven" />
+<meta name="author" content="Artem Konovalov" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="In this article, I am going to talk about proof of concept of incremental compilation with maven. Its aim to boost compilation maven multimodule project." />
+<meta property="og:description" content="In this article, I am going to talk about proof of concept of incremental compilation with maven. Its aim to boost compilation maven multimodule project." />
+<link rel="canonical" href="https://izebit.ru/maven-compilation-optiomization.html" />
+<meta property="og:url" content="https://izebit.ru/maven-compilation-optiomization.html" />
+<meta property="og:site_name" content="Artem Konovalov – Software Engineer" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2018-09-22T00:00:00-03:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Proof of concept of incremental compilation with maven" />
+<meta name="google-site-verification" content="MGhCSoTWiTCeUdZ_2tNyZZ5dmg8Yn18pjFuo9HhksIw" />
+<meta name="yandex-verification" content="34c428376cb827b4" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Artem Konovalov"},"dateModified":"2018-09-22T00:00:00-03:00","datePublished":"2018-09-22T00:00:00-03:00","description":"In this article, I am going to talk about proof of concept of incremental compilation with maven. Its aim to boost compilation maven multimodule project.","headline":"Proof of concept of incremental compilation with maven","mainEntityOfPage":{"@type":"WebPage","@id":"https://izebit.ru/maven-compilation-optiomization.html"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://izebit.ru/assets/logos/photos/main-thumbnail.jpg"},"name":"Artem Konovalov"},"url":"https://izebit.ru/maven-compilation-optiomization.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <link rel="stylesheet" href="/assets/css/syntax.css">
+    
+        <link rel="stylesheet" href="/assets/css/content.css">
+    
+
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon_icons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon_icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/logos/favicon_icons/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/logos/favicon_icons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="144x144" href="/assets/logos/favicon_icons/favicon-144x144.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/logos/favicon_icons/apple-touch-icon.png">
+
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"></script>
+
+    <script type="text/javascript" id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script><!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-00VK83F1ZX"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-00VK83F1ZX');
+</script></head>
+
+
+    <body>
+
+    <div class="container content pb-5 pt-5 pb-md-4">
+
+    <div class="row">
+      <h1>Proof of concept of incremental compilation with maven</h1>
+      
+
+
+
+
+<div class="pb-5 pt-md-3 pt-1 pb-md-4" >
+   📅 22 Sep 2018 🕑 5 min  read
+</div>
+
+
+        <div class="fs-5">
+            <p>In this article, I am going to talk about <em>proof of concept</em> of incremental compilation with maven. Its aim to 
+boost compilation maven multimodule project.</p>
+
+<p>Let’s look at the typical process of build project. In our favorite terminal we type <code class="language-plaintext highlighter-rouge">mvn clean install</code> than maven builds 
+our whole project and copies new created artifact to local repository. It is not big deal and looks trivial. However, 
+there are some problems. One of them is the process might take much time. Even if we skip running tests, maven still spends
+time on creating <em>jar</em> archive or other type of artifact and finally coping it to <em>$HOME/.m2/repository</em></p>
+
+<p>We can do it faster if we do not perform some step of build process for our multimodule project. As the rule, 
+not all modules are affected. According to this fact, we can build modules that actually required to build. But doing it manually is 
+too tedious because we have to detect what modules are changed and run build command with special maven flags <em>-pl</em>.</p>
+
+<p>There is another solution with usage of git. I hope everyone uses <em>scv</em> for his or her projects and this approach can be adapted for 
+any type of it, not only git. <br />
+The key idea is simple. After each time when maven installs artifact, we will add some information about last git commit. The information
+lets us distinguish different artifact builds with the same project version. In case if revision is the same, 
+to build a submodule again does not make sense, because there is already actual version of artifact in a local repository.</p>
+
+<p>How can we implement it? To do it, we need several maven plugins and to code in <em>xml</em>  😃.</p>
+
+<p>To detect git revision, we add a plugin to deal with git:</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>pl.project13.maven<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>git-commit-id-plugin<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>2.2.4<span class="nt">&lt;/version&gt;</span>
+
+    <span class="nt">&lt;executions&gt;</span>
+        <span class="nt">&lt;execution&gt;</span>
+            <span class="nt">&lt;id&gt;</span>get-the-git-information<span class="nt">&lt;/id&gt;</span>
+            <span class="nt">&lt;goals&gt;</span>
+                <span class="nt">&lt;goal&gt;</span>revision<span class="nt">&lt;/goal&gt;</span>
+            <span class="nt">&lt;/goals&gt;</span>
+            <span class="nt">&lt;phase&gt;</span>validate<span class="nt">&lt;/phase&gt;</span>
+        <span class="nt">&lt;/execution&gt;</span>
+    <span class="nt">&lt;/executions&gt;</span>
+    <span class="nt">&lt;configuration&gt;</span>
+        <span class="nt">&lt;validationProperties&gt;</span>
+            <span class="nt">&lt;validationProperty&gt;</span>
+                <span class="nt">&lt;name&gt;</span>validating git dirty<span class="nt">&lt;/name&gt;</span>
+                <span class="nt">&lt;value&gt;</span>${git.dirty}<span class="nt">&lt;/value&gt;</span>
+                <span class="nt">&lt;shouldMatchTo&gt;</span>false<span class="nt">&lt;/shouldMatchTo&gt;</span>
+            <span class="nt">&lt;/validationProperty&gt;</span>
+        <span class="nt">&lt;/validationProperties&gt;</span>
+    <span class="nt">&lt;/configuration&gt;</span>
+<span class="nt">&lt;/plugin&gt;</span>
+</code></pre></div></div>
+
+<p><em>git.dirty</em> parameter will be set to <em>true</em> if there are some not committed changes. In that case, we will not compare revision versions 
+and build will be required anyway.</p>
+
+<p>Comparing revision versions will be implemented with <em>ant</em> tasks. It is the most “sophisticated” and cumbersome part of the article.</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!-- wp:code --&gt;</span>
+<span class="nt">&lt;plugin&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>maven-antrun-plugin<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>1.8<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;executions&gt;</span>
+        <span class="nt">&lt;execution&gt;</span>
+          <span class="nt">&lt;configuration&gt;</span>
+            <span class="nt">&lt;exportAntProperties&gt;</span>true<span class="nt">&lt;/exportAntProperties&gt;</span>
+            <span class="nt">&lt;target&gt;</span>
+              <span class="c">&lt;!--add task defintions from ant-contrib--&gt;</span>
+              <span class="nt">&lt;taskdef</span> <span class="na">resource=</span><span class="s">"net/sf/antcontrib/antcontrib.properties"</span><span class="nt">/&gt;</span>
+              <span class="nt">&lt;echo&gt;</span>Git revision: ${git.commit.id}<span class="nt">&lt;/echo&gt;</span>
+              <span class="nt">&lt;echo&gt;</span>Does repo contain any changes? ${git.dirty}<span class="nt">&lt;/echo&gt;</span>
+    
+              <span class="c">&lt;!--получаем путь до артифакта в локальном репозитории--&gt;</span>
+              <span class="nt">&lt;propertyregex</span> <span class="na">property=</span><span class="s">"directory.name"</span>
+                                       <span class="na">input=</span><span class="s">"${project.groupId}"</span>
+                                       <span class="na">regexp=</span><span class="s">"[.]"</span>
+                                       <span class="na">replace=</span><span class="s">"/"</span>
+                                       <span class="na">global=</span><span class="s">"true"</span><span class="nt">/&gt;</span>
+              <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"artifact.path"</span>
+                        <span class="na">value=</span><span class="s">"${settings.localRepository}/${directory.name}/${project.artifactId}/${project.version}"</span><span class="nt">/&gt;</span>
+              <span class="nt">&lt;echo&gt;</span>Artifact path: ${artifact.path}<span class="nt">&lt;/echo&gt;</span>
+    
+              <span class="c">&lt;!-- detect if local changes do not exist  and two files: jar archive and file with revision version exist--&gt;</span>
+              <span class="nt">&lt;condition</span> <span class="na">property=</span><span class="s">"skip.build"</span> <span class="na">value=</span><span class="s">"true"</span> <span class="na">else=</span><span class="s">"false"</span><span class="nt">&gt;</span>
+                            <span class="nt">&lt;and&gt;</span>
+                                <span class="nt">&lt;isfalse</span> <span class="na">value=</span><span class="s">"${git.dirty}"</span><span class="nt">/&gt;</span>
+                                <span class="nt">&lt;resourceexists&gt;</span>
+                                    <span class="nt">&lt;file</span> <span class="na">file=</span><span class="s">"${artifact.path}/${project.build.finalName}.${project.packaging}"</span><span class="nt">/&gt;</span>
+                                <span class="nt">&lt;/resourceexists&gt;</span>
+                                <span class="nt">&lt;resourceexists&gt;</span>
+                                    <span class="nt">&lt;file</span> <span class="na">file=</span><span class="s">"${artifact.path}/${git.commit.id}"</span><span class="nt">/&gt;</span>
+                                <span class="nt">&lt;/resourceexists&gt;</span>
+                            <span class="nt">&lt;/and&gt;</span>
+              <span class="nt">&lt;/condition&gt;</span>
+    
+              <span class="c">&lt;!--if build is required, remove all old files--&gt;</span>
+              <span class="nt">&lt;if&gt;</span>
+                <span class="nt">&lt;equals</span> <span class="na">arg1=</span><span class="s">"${skip.build}"</span> <span class="na">arg2=</span><span class="s">"true"</span><span class="nt">/&gt;</span>
+                <span class="nt">&lt;then&gt;</span>
+                  <span class="nt">&lt;echo</span> <span class="na">message=</span><span class="s">"Skip build for ${project.artifactId}"</span><span class="nt">/&gt;</span>
+                <span class="nt">&lt;/then&gt;</span>
+                <span class="nt">&lt;else&gt;</span>
+                  <span class="nt">&lt;echo</span> <span class="na">message=</span><span class="s">"Rebuild ${project.artifactId}"</span><span class="nt">/&gt;</span>
+                  <span class="nt">&lt;delete</span> <span class="na">dir=</span><span class="s">"${artifact.path}/"</span> <span class="na">failonerror=</span><span class="s">"false"</span><span class="nt">/&gt;</span>
+                  <span class="nt">&lt;mkdir</span> <span class="na">dir=</span><span class="s">"${artifact.path}"</span><span class="nt">/&gt;</span>
+                  <span class="nt">&lt;touch</span> <span class="na">file=</span><span class="s">"${artifact.path}/${git.commit.id}"</span><span class="nt">/&gt;</span>
+                <span class="nt">&lt;/else&gt;</span>
+              <span class="nt">&lt;/if&gt;</span>
+            <span class="nt">&lt;/target&gt;</span>
+          <span class="nt">&lt;/configuration&gt;</span>
+          <span class="nt">&lt;phase&gt;</span>validate<span class="nt">&lt;/phase&gt;</span>
+          <span class="nt">&lt;goals&gt;</span>
+            <span class="nt">&lt;goal&gt;</span>run<span class="nt">&lt;/goal&gt;</span>
+          <span class="nt">&lt;/goals&gt;</span>
+        <span class="nt">&lt;/execution&gt;</span>
+      <span class="nt">&lt;/executions&gt;</span>
+    <span class="nt">&lt;dependencies&gt;</span>
+            <span class="nt">&lt;dependency&gt;</span>
+                <span class="nt">&lt;groupId&gt;</span>ant-contrib<span class="nt">&lt;/groupId&gt;</span>
+                <span class="nt">&lt;artifactId&gt;</span>ant-contrib<span class="nt">&lt;/artifactId&gt;</span>
+                <span class="nt">&lt;version&gt;</span>1.0b3<span class="nt">&lt;/version&gt;</span>
+                <span class="nt">&lt;exclusions&gt;</span>
+                    <span class="nt">&lt;exclusion&gt;</span>
+                        <span class="nt">&lt;groupId&gt;</span>ant<span class="nt">&lt;/groupId&gt;</span>
+                        <span class="nt">&lt;artifactId&gt;</span>ant<span class="nt">&lt;/artifactId&gt;</span>
+                    <span class="nt">&lt;/exclusion&gt;</span>
+                <span class="nt">&lt;/exclusions&gt;</span>
+            <span class="nt">&lt;/dependency&gt;</span>
+    <span class="nt">&lt;/dependencies&gt;</span>
+<span class="nt">&lt;/plugin&gt;</span>
+</code></pre></div></div>
+
+<p>As you might notice, the implementation is simple. The local repository beside artifacts also contains one more file with revision versions.
+The file name involves the version of the last commit. If all changes are committed and all required files 
+(artifact file and file with revision version) exist,
+the build process of submodule will be skipped otherwise clean up and rerun build.</p>
+
+<p>Unfortunately, there are no ways to skip build for a particular submodule in <em>maven</em>. Thus, we have to pass skip parameter to all plugins 
+that are used in a build process. It is not taught, but it makes our result pom ponderous.</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;plugins&gt;</span>
+    <span class="nt">&lt;plugin&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>maven-compiler-plugin<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;configuration&gt;</span>
+                <span class="nt">&lt;skipMain&gt;</span>${skip.build}<span class="nt">&lt;/skipMain&gt;</span>
+                <span class="nt">&lt;skip&gt;</span>${skip.build}<span class="nt">&lt;/skip&gt;</span>
+                <span class="nt">&lt;source&gt;</span>1.8<span class="nt">&lt;/source&gt;</span>
+                <span class="nt">&lt;target&gt;</span>1.8<span class="nt">&lt;/target&gt;</span>
+            <span class="nt">&lt;/configuration&gt;</span>
+     <span class="nt">&lt;/plugin&gt;</span>
+     <span class="nt">&lt;plugin&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>maven-resources-plugin<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>3.0.0<span class="nt">&lt;/version&gt;</span>
+            <span class="nt">&lt;configuration&gt;</span>
+                <span class="nt">&lt;skip&gt;</span>${skip.build}<span class="nt">&lt;/skip&gt;</span>
+            <span class="nt">&lt;/configuration&gt;</span>
+     <span class="nt">&lt;/plugin&gt;</span>
+     <span class="nt">&lt;plugin&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>maven-jar-plugin<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>2.4<span class="nt">&lt;/version&gt;</span>
+            <span class="nt">&lt;configuration&gt;</span>
+                <span class="nt">&lt;skipIfEmpty&gt;</span>true<span class="nt">&lt;/skipIfEmpty&gt;</span>
+            <span class="nt">&lt;/configuration&gt;</span>
+     <span class="nt">&lt;/plugin&gt;</span>
+     <span class="nt">&lt;plugin&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>maven-install-plugin<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;configuration&gt;</span>
+                <span class="nt">&lt;skip&gt;</span>${skip.build}<span class="nt">&lt;/skip&gt;</span>
+            <span class="nt">&lt;/configuration&gt;</span>
+     <span class="nt">&lt;/plugin&gt;</span>
+<span class="nt">&lt;/plugins&gt;</span>
+</code></pre></div></div>
+
+<p>I hope you find the article interesting and useful 🖖.</p>
+
+<p><a href="https://gist.github.com/izebit/27070793ca954c47f81f3a16f7d392f1" rel="nofollow">
+    <img src="/assets/img/github-icon.svg" width="100" height="100" />
+</a></p>
+
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h6 class="mb-3 fs-5">Related posts</h6>
+
+        <div class="row g-3">
+            
+            <div class="col-12 col-md-4">
+                <a href="/concurrency-models.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            3 Concurrency Models
+                        </div>
+                        <div class="small text-muted">
+                            Aug 11, 2024
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/is-three-tier-architecture-anti-pattern.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Is 3-tier Architecture anti-pattern?
+                        </div>
+                        <div class="small text-muted">
+                            Oct 24, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/garbage-collectors-in-java.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Garbage Collectors in JVM-based languages
+                        </div>
+                        <div class="small text-muted">
+                            Oct 16, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-expectancy-visualization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life expectancy visualization
+                        </div>
+                        <div class="small text-muted">
+                            Nov 26, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-behind-proxy.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life behind proxy
+                        </div>
+                        <div class="small text-muted">
+                            Oct 02, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/reactive-spring-video.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Reactive spring [ru]
+                        </div>
+                        <div class="small text-muted">
+                            Jan 12, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/shutdown-java-app-gracefully.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            How to stop java application gracefully
+                        </div>
+                        <div class="small text-muted">
+                            Oct 26, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/tf-idf-with-hadoop-streaming.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            TF-IDF with Hadoop Streaming
+                        </div>
+                        <div class="small text-muted">
+                            Jul 29, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/java-compile-optimization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Not evident JIT optimizations
+                        </div>
+                        <div class="small text-muted">
+                            Jun 11, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/cpu-optimizations.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            CPU optimizations
+                        </div>
+                        <div class="small text-muted">
+                            May 15, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<footer class="border-top mt-3">
+    <div class="container py-4 text-center">
+        <a href="/" class="fs-5 text-decoration-none text-reset d-block mb-1">
+            © 2026 Artem Konovalov
+        </a>
+
+        <div class="text-muted">
+            This website is a personal blog. Mainly there are
+posts about java, but you can find ones on other topics.
+
+        </div>
+    </div>
+</footer>
+
+
+    </body>
+</html>

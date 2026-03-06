@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+    <head>
+    <meta charset="utf-8">
+    <meta property="og:locale" content="en_US">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Is 3-tier Architecture anti-pattern? | Artem Konovalov – Software Engineer</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Is 3-tier Architecture anti-pattern?" />
+<meta name="author" content="Artem Konovalov" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="In this topic, I would like to discuss about 3-tier architecture, what kind of drawbacks it has and what might be used instead of it." />
+<meta property="og:description" content="In this topic, I would like to discuss about 3-tier architecture, what kind of drawbacks it has and what might be used instead of it." />
+<link rel="canonical" href="https://izebit.ru/is-three-tier-architecture-anti-pattern.html" />
+<meta property="og:url" content="https://izebit.ru/is-three-tier-architecture-anti-pattern.html" />
+<meta property="og:site_name" content="Artem Konovalov – Software Engineer" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-10-24T00:00:00-03:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Is 3-tier Architecture anti-pattern?" />
+<meta name="google-site-verification" content="MGhCSoTWiTCeUdZ_2tNyZZ5dmg8Yn18pjFuo9HhksIw" />
+<meta name="yandex-verification" content="34c428376cb827b4" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Artem Konovalov"},"dateModified":"2023-10-24T00:00:00-03:00","datePublished":"2023-10-24T00:00:00-03:00","description":"In this topic, I would like to discuss about 3-tier architecture, what kind of drawbacks it has and what might be used instead of it.","headline":"Is 3-tier Architecture anti-pattern?","mainEntityOfPage":{"@type":"WebPage","@id":"https://izebit.ru/is-three-tier-architecture-anti-pattern.html"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://izebit.ru/assets/logos/photos/main-thumbnail.jpg"},"name":"Artem Konovalov"},"url":"https://izebit.ru/is-three-tier-architecture-anti-pattern.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <link rel="stylesheet" href="/assets/css/syntax.css">
+    
+        <link rel="stylesheet" href="/assets/css/content.css">
+    
+
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon_icons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon_icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/logos/favicon_icons/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/logos/favicon_icons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="144x144" href="/assets/logos/favicon_icons/favicon-144x144.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/logos/favicon_icons/apple-touch-icon.png">
+
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"></script>
+
+    <script type="text/javascript" id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script><!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-00VK83F1ZX"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-00VK83F1ZX');
+</script></head>
+
+
+    <body>
+
+    <div class="container content pb-5 pt-5 pb-md-4">
+
+    <div class="row">
+      <h1>Is 3-tier Architecture anti-pattern?</h1>
+      
+
+
+
+
+<div class="pb-5 pt-md-3 pt-1 pb-md-4" >
+   📅 24 Oct 2023 🕑 8 min  read
+</div>
+
+
+        <div class="fs-5">
+            <p>In this topic, I would like to discuss about 3-tier architecture, what kind of drawbacks it has and what might be used instead of it.</p>
+
+<p><img src="/assets/img/3-tier-architecture/thumbnail.png" alt="spring-modulith and hexagonal architecture" /></p>
+
+<h2 id="three-tier-architecture">Three-tier Architecture</h2>
+<p>Let’s talk about <strong>three-tier architecture</strong>. It’s a well-known pattern that defines in which way we should organise modules of our programs. 
+The 3-tier architecture is very popular across web applications, but it might be applied to not only implementing this type of application. 
+Based on the name, you might guess that there are 3 tiers:</p>
+
+<ol>
+  <li>Presentation Layer</li>
+  <li>Logic Layer</li>
+  <li>Data Layer</li>
+</ol>
+
+<p><strong>Presentation Layer</strong> contains logic that is in charge of providing data via REST or other protocols. The code of this layer handles requests, takes needed data, 
+transforms the data to required formats and sends responses. Usually, a framework is responsible for most of these actions but a programmer still needs to declare 
+API and to define from which place data will be taken and where data should be passed to.<br />
+<strong>Logic Layer</strong> contains business logic e.g. creating new objects, changing values of existing domain objects and so on. 
+It’s the most interesting part of the application.<br />
+The last one is the <strong>Data Layer</strong>. This layer provides access to a database in a convenient way. Due to the <strong>Data Layer</strong>, 
+we don’t have to think about how to persist and retrieve objects from a database. Moreover, in theory, this abstraction tier 
+lets switch database type without changing business logic e.g. from MySQL to PostgreSQL, or even to a NoSQL solution.<br />
+As a rule, each tier is represented by a package that contains all classes associated with a corresponding tier. Let’s look at an example. 
+It is a simple content management system. The system provides a Web Interface and REST API to operate posts, comments, and users. 
+The picture below depicts the structure of the 3-tier architecture of the application. For convenience, I mark the related classes with the same emojis.</p>
+<pre>
+.
+└──ru
+   └── izebit
+           ├── ApplicationLauncher.java 
+           ├── controller
+           │   ├── UserController.java 👽
+           │   ├── PostController.java 🗒️
+           │   └── CommentController.java ✏️
+           ├── repository
+           │   ├── UserRepository.java 👽
+           │   ├── PostRepository.java 🗒️
+           │   ├── CommentRepository.java ✏️
+           │   └── model
+           │       ├── User.java 👽
+           │       ├── Post.java 🗒️
+           │       └── Comment.java ✏️
+           └── service
+               ├── UserService.java 👽
+               ├── AuthenticationService.java 👽
+               ├── StopSpamService.java ✏️
+               ├── CommentService.java ✏️
+               ├── PostService.java 🗒️
+               ├── SpellCheckerService.java 🗒️
+               └── dto
+                   ├── User.java 👽
+                   ├── Post.java 🗒️
+                   └── Comment.java ✏️
+</pre>
+
+<p>As we can see, there are classes grouped in packaged by type, not by domain. All classes must be public because they should 
+be accessible from other packages, otherwise, controllers can’t work with services and services can’t work with repositories.<br />
+Moreover, not related classes are also accessible to each other inside a package, for example, <code class="language-plaintext highlighter-rouge">AuthenticationService</code> and <code class="language-plaintext highlighter-rouge">SpellCheckerService</code>.
+In this way, based only on the structure, it’s tough to understand the relationship between classes. In addition, the current package structure 
+contradicts the <a href="https://en.wikipedia.org/wiki/Encapsulation_(computer_programming)" rel="nofollow">Encapsulation principle</a>.</p>
+
+<blockquote>
+  <p>A language mechanism for restricting direct access to some of the object’s components.</p>
+  <ul>
+    <li><cite>Wikipedia</cite></li>
+  </ul>
+</blockquote>
+
+<p>To restrict access to components from other packages, we might place all related classes into the same “business logic” package 
+and expose only classes that are used by other components. Other classes might have restricted modifiers e.g. package-private or private modifiers.
+This approach can be implemented with <strong>Hexagonal Architecture</strong>.</p>
+
+<h2 id="hexagonal-architecture">Hexagonal Architecture</h2>
+
+<p><img src="/assets/img/3-tier-architecture/hexagonal-arhitecture.png" alt="hexagonal architecture" /></p>
+
+<p>The backbone of <strong>Hexagonal Architecture</strong> is <strong>Ports</strong> and <strong>Adapters</strong>. Business logic has boundaries and is isolated from other components. 
+There is no direct access to it from other packages.<br />
+<strong>Ports</strong> provide a shareable API that might be used to work with our business logic and vice versa i.e. to define API for interacting 
+with the external world as well. Thus, it stands for “<ins>WHAT</ins> our system can do and other systems can do with”.<br />
+<strong>Adapters</strong> define in which way ports might be invoked and which way our system might work with other components. One port might have many adapters. 
+In this way, adapter stands for “<ins>HOW</ins> the system and other systems interact each other”.<br />
+This approach lets us write maintainable code with isolated domain-specific logic. All dependencies are represented as interfaces and might be mocked 
+if necessary. It makes writing tests easier. Also, it affects flexibility because we can change adapters without touching core logic. 
+In other words, this design encourages  <a href="https://en.wikipedia.org/wiki/Orthogonality_(programming)" rel="nofollow">Orthogonality</a>.</p>
+
+<p>Let’s look at the structure of the app with <strong>Hexagonal Architecture</strong>:</p>
+<pre>
+.
+└── ru
+    └── izebit
+        ├── ApplicationLauncher.java
+        ├── comment
+        │   ├── CommentServiceImpl.java
+        │   ├── StopSpamService.java
+        │   └── ports
+        │       ├── in
+        │       │   ├── CommentService.java
+        │       │   └── adapters
+        │       │       └── CommentController.java
+        │       ├── models
+        │       │   └── Comment.java
+        │       └── out
+        │           ├── CommentRepository.java
+        │           ├── UserService.java
+        │           └── adapters
+        │               ├── CommentRepositoryImpl.java
+        │               └── UserServiceImpl.java
+        ├── post
+        │   ├── PostServiceImpl.java
+        │   ├── SpellCheckerService.java
+        │   └── ports
+        │       ├── in
+        │       │   ├── PostService.java
+        │       │   └── adapters
+        │       │       └── PostController.java
+        │       ├── models
+        │       │   └── Post.java
+        │       └── out
+        │           ├── PostRepository.java
+        │           ├── UserService.java
+        │           └── adapters
+        │               ├── PostRepositoryImpl.java
+        │               └── UserServiceImpl.java
+        └── user
+            ├── AuthenticationService.java
+            ├── UserServiceImpl.java
+            └── ports
+                ├── in
+                │   ├── UserService.java
+                │   └── adapters
+                │       └── UserController.java
+                ├── models
+                │   └── User.java
+                └── out
+                    ├── UserRepository.java
+                    └── adapters
+                        └── UserRepositoryImpl.java
+</pre>
+
+<p>In comparison to the previous one, this structure brings a few additional interfaces and packages, but at the same time, 
+it gives more information on the relationships between components.<br />
+The <code class="language-plaintext highlighter-rouge">protected</code> package visibility modifier hides all domain-specific classes. Only components of packages <code class="language-plaintext highlighter-rouge">*/ports/in/</code> and <code class="language-plaintext highlighter-rouge">*/ports/model/</code> 
+must be <code class="language-plaintext highlighter-rouge">public</code> i.e. accessible from other packages. By now, there’s still no clear relationship between packages. 
+We need to provide public access to only particular packages.<br />
+For instance, during working with comments and posts, we need to check users if they are authenticated, they present in blacklist etc. 
+It means that classes from the <code class="language-plaintext highlighter-rouge">post</code> and <code class="language-plaintext highlighter-rouge">comment</code> packages should have access to public classes from the <code class="language-plaintext highlighter-rouge">user</code> package, but the reverse is false.<br />
+Limiting access might be implemented with <a href="https://www.oracle.com/corporate/features/understanding-java-9-modules.html" rel="nofollow">Java Modules</a>, 
+but we discover another approach.</p>
+
+<h2 id="spring-modulith">Spring Modulith</h2>
+<p>This Spring component lets developers implement logical modules in Spring Boot applications. 
+It supports structural validation, generation of Module Component diagrams etc. In this post, we are going 
+to use a few modules of this Spring component.</p>
+
+<p>First of all, we need to mark our public packages with the <code class="language-plaintext highlighter-rouge">NamedInterface</code> annotation. <br />
+By default, all top-level packages are considered as modules and there is no need to define them explicitly. 
+We do it only for sub-packages.</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@org</span><span class="o">.</span><span class="na">springframework</span><span class="o">.</span><span class="na">modulith</span><span class="o">.</span><span class="na">NamedInterface</span><span class="o">(</span><span class="s">"in"</span><span class="o">)</span>  
+<span class="kn">package</span> <span class="nn">ru.izebit.user.ports.in</span><span class="o">;</span>
+</code></pre></div></div>
+
+<p>Then we should define dependencies for each package. For this purpose, we use the following annotation:</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@org</span><span class="o">.</span><span class="na">springframework</span><span class="o">.</span><span class="na">modulith</span><span class="o">.</span><span class="na">ApplicationModule</span><span class="o">(</span>  
+        <span class="n">allowedDependencies</span> <span class="o">=</span> <span class="s">"user::in"</span>  
+<span class="o">)</span>  
+<span class="kn">package</span> <span class="nn">ru.izebit.comment</span><span class="o">;</span>
+</code></pre></div></div>
+<p>This information on packages are stored in <code class="language-plaintext highlighter-rouge">package-info.java</code> files placed in the relevant directories.</p>
+
+<p>After these two steps, we can write a simple test that checks correct packages access.</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Test</span>  
+<span class="kt">void</span> <span class="nf">shouldBeCompliant</span><span class="o">()</span> <span class="o">{</span>  
+    <span class="nc">ApplicationModules</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="nc">ApplicationLauncher</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+				      <span class="o">.</span><span class="na">verify</span><span class="o">();</span>  
+<span class="o">}</span>
+</code></pre></div></div>
+<p>If access is broken, we can see the following output:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>org.springframework.modulith.core.Violations: - Module <span class="s1">'comment'</span> depends on module <span class="s1">'user'</span> via ru.izebit.comment.ports.in.adapters.CommentController -&gt; ru.izebit.user.ports.out.UserRepository. Allowed targets: user::in.
+</code></pre></div></div>
+<p>The error message is descriptive and gives enough information to find out the root of the issue.<br />
+In addition to checking package access violations, one of the features of <strong>Spring Modulith</strong> is generation of UML diagrams.
+If you make the code below a part of build pipeline, you will always have up-date diagrams of your system.</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">writeDocumentationSnippets</span><span class="o">()</span> <span class="o">{</span>  
+    <span class="k">new</span> <span class="nf">Documenter</span><span class="o">(</span><span class="n">modules</span><span class="o">)</span>  
+            <span class="o">.</span><span class="na">writeModuleCanvases</span><span class="o">()</span>  
+            <span class="o">.</span><span class="na">writeModulesAsPlantUml</span><span class="o">()</span>  
+            <span class="o">.</span><span class="na">writeIndividualModulesAsPlantUml</span><span class="o">();</span>  
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><img src="/assets/img/3-tier-architecture/c4-plantUML-diagram.png" alt="c4 uml diagram" /></p>
+
+<p>The picture depicts <a href="https://github.com/plantuml-stdlib/C4-PlantUML" rel="nofollow">C4 PlantUML diagram</a> of the application.</p>
+
+<p>You can find the source code of the application <a href="https://github.com/izebit/spring-modulith-example" rel="nofollow">here</a>.
+<a href="https://github.com/izebit/spring-modulith-example" rel="nofollow">
+    <img src="/assets/img/github-icon.svg" width="100" height="100" alt="project on GitHub" />
+</a></p>
+
+<h4 id="links">Links:</h4>
+<ul>
+  <li><a href="https://medium.com/ssense-tech/hexagonal-architecture-there-are-always-two-sides-to-every-story-bc0780ed7d9c" rel="nofollow">Hexagonal Architecture, there are always two sides to every story</a></li>
+  <li><a href="https://spring.io/blog/2022/10/21/introducing-spring-modulith/" rel="nofollow">Introducing Spring Modulith</a></li>
+  <li><a href="https://docs.oracle.com/javase/tutorial/java/javaOO/accesscontrol.html" rel="nofollow">Controlling Access to Members of a Class</a></li>
+</ul>
+
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h6 class="mb-3 fs-5">Related posts</h6>
+
+        <div class="row g-3">
+            
+            <div class="col-12 col-md-4">
+                <a href="/concurrency-models.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            3 Concurrency Models
+                        </div>
+                        <div class="small text-muted">
+                            Aug 11, 2024
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/garbage-collectors-in-java.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Garbage Collectors in JVM-based languages
+                        </div>
+                        <div class="small text-muted">
+                            Oct 16, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-expectancy-visualization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life expectancy visualization
+                        </div>
+                        <div class="small text-muted">
+                            Nov 26, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-behind-proxy.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life behind proxy
+                        </div>
+                        <div class="small text-muted">
+                            Oct 02, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/reactive-spring-video.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Reactive spring [ru]
+                        </div>
+                        <div class="small text-muted">
+                            Jan 12, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/shutdown-java-app-gracefully.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            How to stop java application gracefully
+                        </div>
+                        <div class="small text-muted">
+                            Oct 26, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/tf-idf-with-hadoop-streaming.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            TF-IDF with Hadoop Streaming
+                        </div>
+                        <div class="small text-muted">
+                            Jul 29, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/java-compile-optimization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Not evident JIT optimizations
+                        </div>
+                        <div class="small text-muted">
+                            Jun 11, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/cpu-optimizations.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            CPU optimizations
+                        </div>
+                        <div class="small text-muted">
+                            May 15, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/getting-started-with-selenide.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Getting started with Selenide
+                        </div>
+                        <div class="small text-muted">
+                            Apr 05, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<footer class="border-top mt-3">
+    <div class="container py-4 text-center">
+        <a href="/" class="fs-5 text-decoration-none text-reset d-block mb-1">
+            © 2026 Artem Konovalov
+        </a>
+
+        <div class="text-muted">
+            This website is a personal blog. Mainly there are
+posts about java, but you can find ones on other topics.
+
+        </div>
+    </div>
+</footer>
+
+
+    </body>
+</html>

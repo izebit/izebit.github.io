@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+    <head>
+    <meta charset="utf-8">
+    <meta property="og:locale" content="en_US">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Types of joins | Artem Konovalov – Software Engineer</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Types of joins" />
+<meta name="author" content="Artem Konovalov" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="To my shame I still do not know all types of joins. This article is my try to figure out in this topic." />
+<meta property="og:description" content="To my shame I still do not know all types of joins. This article is my try to figure out in this topic." />
+<link rel="canonical" href="https://izebit.ru/types-of-joins.html" />
+<meta property="og:url" content="https://izebit.ru/types-of-joins.html" />
+<meta property="og:site_name" content="Artem Konovalov – Software Engineer" />
+<meta property="og:image" content="https://izebit.ru/assets/img/join-inner.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2018-04-16T00:00:00-03:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="https://izebit.ru/assets/img/join-inner.png" />
+<meta property="twitter:title" content="Types of joins" />
+<meta name="google-site-verification" content="MGhCSoTWiTCeUdZ_2tNyZZ5dmg8Yn18pjFuo9HhksIw" />
+<meta name="yandex-verification" content="34c428376cb827b4" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Artem Konovalov"},"dateModified":"2018-04-16T00:00:00-03:00","datePublished":"2018-04-16T00:00:00-03:00","description":"To my shame I still do not know all types of joins. This article is my try to figure out in this topic.","headline":"Types of joins","image":"https://izebit.ru/assets/img/join-inner.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://izebit.ru/types-of-joins.html"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://izebit.ru/assets/logos/photos/main-thumbnail.jpg"},"name":"Artem Konovalov"},"url":"https://izebit.ru/types-of-joins.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <link rel="stylesheet" href="/assets/css/syntax.css">
+    
+        <link rel="stylesheet" href="/assets/css/content.css">
+    
+
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon_icons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon_icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/logos/favicon_icons/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/logos/favicon_icons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="144x144" href="/assets/logos/favicon_icons/favicon-144x144.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/logos/favicon_icons/apple-touch-icon.png">
+
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"></script>
+
+    <script type="text/javascript" id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script><!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-00VK83F1ZX"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-00VK83F1ZX');
+</script></head>
+
+
+    <body>
+
+    <div class="container content pb-5 pt-5 pb-md-4">
+
+    <div class="row">
+      <h1>Types of joins</h1>
+      
+
+
+
+
+<div class="pb-5 pt-md-3 pt-1 pb-md-4" >
+   📅 16 Apr 2018 🕑 5 min  read
+</div>
+
+
+        <div class="fs-5">
+            <p>To my shame I still do not know all types of joins. This article is my try to figure out in this topic.</p>
+
+<p>First, we should understand what join is.</p>
+
+<blockquote>
+  <p>Join is an operation that union tables by some columns.</p>
+</blockquote>
+
+<p>There are several types of them:</p>
+<ol>
+  <li>left inner</li>
+  <li>right inner</li>
+  <li>left outer</li>
+  <li>right outer</li>
+  <li>some other types.</li>
+</ol>
+
+<p>The main difference between all of them is what rows the result includes.
+Later, we will look at some examples in order to comprehend it better.</p>
+
+<p>We will use 2 tables  <em>workers</em> and <em>phones</em> in our examples.</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">workers</span><span class="p">;</span>
+</code></pre></div></div>
+<p>output:</p>
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>---------------
+name  | type
+---------------
+john  | developer
+steve | manager
+bruce | seller
+neal  | architect
+
+</code></pre></div></div>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">phones</span><span class="p">;</span>
+</code></pre></div></div>
+<p>output:</p>
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>------------------
+name   | phone
+------------------
+john   | 100
+jeramy | 103
+steve  | 102
+zach   | 101
+
+</code></pre></div></div>
+<p>To better understand, we will execute sql queries with different type of joins.</p>
+
+<h3 id="left-inner-join">left inner join</h3>
+
+<p>A query is given:</p>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">workers</span> <span class="k">left</span> <span class="k">inner</span> <span class="k">join</span> <span class="n">phones</span> <span class="k">on</span> <span class="n">workers</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">phones</span><span class="p">.</span><span class="n">name</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>The result of execution of the query includes workers who has phone numbers.</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-------------------------------
+name  |type        | phone
+-------------------------------
+john  | developer  | 100
+steve | manager    | 102
+</code></pre></div></div>
+
+<p><a href="https://en.wikipedia.org/wiki/Venn_diagram" rel="nofollow">Venn Diagram</a> illustrates result very well.</p>
+
+<p><img src="/assets/img/join-inner.png" alt="inner join" /></p>
+
+<h3 id="left-outer-join">left outer join</h3>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">workers</span> <span class="k">left</span> <span class="k">outer</span> <span class="k">join</span> <span class="n">phones</span> <span class="k">on</span> <span class="n">workers</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">phones</span><span class="p">.</span><span class="n">name</span>
+</code></pre></div></div>
+<p>output:</p>
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-------------------------------
+name  |type         | phone
+-------------------------------
+john  | developer   | 100
+steve | manager     | 102
+bruce | seller      | null
+neal  | architect   | null
+</code></pre></div></div>
+
+<p>The result involves, as you can see, list of <strong>all</strong> workers.</p>
+
+<p><img src="/assets/img/join-left-outer.png" alt="left outer join" /></p>
+
+<h3 id="right-outer-join">right outer join</h3>
+
+<p>A query with this type of join works similarly to the previous query, but there 
+is only difference is that the result contains all rows of the second table.</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">workers</span> <span class="k">right</span> <span class="k">outer</span> <span class="k">join</span> <span class="n">phones</span> <span class="k">on</span> <span class="n">workers</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">phones</span><span class="p">.</span><span class="n">name</span>
+</code></pre></div></div>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-------------------------------
+name   |type         | phone
+-------------------------------
+john   | developer   | 100
+steve  | manager     | 102
+jeramy | null        | 103
+zach   | null        | 101
+</code></pre></div></div>
+
+<p><img src="/assets/img/join-right-outer.png" alt="right outer join" /></p>
+
+<h3 id="inner-join-and-right-inner-join">inner join and right inner join</h3>
+
+<p>The result of executions of these queries with <strong>inner join</strong>, <strong>right inner join</strong> and <strong>left inner join</strong> are identical.</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">workers</span> <span class="k">inner</span> <span class="k">join</span> <span class="n">phones</span> <span class="k">on</span> <span class="n">workers</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">phones</span><span class="p">.</span><span class="n">name</span>
+</code></pre></div></div>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-------------------------------
+name  |type        | phone
+-------------------------------
+john  | developer  | 100
+steve | manager    | 102
+</code></pre></div></div>
+
+<h3 id="full-outer-join">full outer join</h3>
+<p>Beside basic types, there are several additional types. They are used rarely, but sometimes you can find them useful.
+One of them is <strong>full outer join</strong>.</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">workers</span> <span class="k">full</span> <span class="k">outer</span> <span class="k">join</span> <span class="n">phones</span> <span class="k">on</span> <span class="n">workers</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">phones</span><span class="p">.</span><span class="n">name</span>
+</code></pre></div></div>
+
+<p>After execution the query abow, we will have rows from the results of <strong>left outer join</strong> and <strong>right outer join</strong>.</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-------------------------------
+name   |type         | phone
+-------------------------------
+john   | developer   | 100
+steve  | manager     | 102
+jeramy | null        | 103
+zach   | null        | 101
+bruce  | seller      | null
+neal   | architect   | null
+</code></pre></div></div>
+
+<p><img src="/assets/img/join-full-outer.png" alt="full outer join" /></p>
+
+<p>Moreover, we can use <em>where</em> for the query and get rows that do not match.</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">workers</span> <span class="k">full</span> <span class="k">outer</span> <span class="k">join</span> <span class="n">phones</span> <span class="k">on</span> <span class="n">workers</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">phones</span><span class="p">.</span><span class="n">name</span> <span class="k">where</span> <span class="n">phones</span><span class="p">.</span><span class="n">phone</span> <span class="k">is</span> <span class="k">null</span> <span class="k">or</span> <span class="n">workers</span><span class="p">.</span><span class="k">type</span> <span class="k">is</span> <span class="k">null</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>The result:</p>
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-------------------------------
+name   |type         | phone
+-------------------------------
+jeramy | null        | 103
+zach   | null        | 101
+bruce  | seller      | null
+neal   | architect   | null
+</code></pre></div></div>
+
+<p><img src="/assets/img/join-without-inner-part.png" alt="inner join without inner part" /></p>
+
+<h3 id="cross-join">cross join</h3>
+
+<p>It is one of specific type of joins. The result of execution involves all possible combinations of rows from two tables.
+It is called <a href="https://en.wikipedia.org/wiki/Cartesian_product" rel="nofollow">Cartesian product</a>.
+The count of the result equals a product of count of rows of both tables.</p>
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">workers</span> <span class="k">cross</span> <span class="k">join</span> <span class="n">phones</span>
+</code></pre></div></div>
+
+<h3 id="others">others</h3>
+
+<p>This part is about some useful queries with different types of joins.</p>
+
+<p>If we can get a list of workers who do not have phone numbers, we can use the query below:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">workers</span> <span class="k">left</span> <span class="k">outer</span> <span class="k">join</span> <span class="n">phones</span> <span class="k">where</span> <span class="n">phones</span><span class="p">.</span><span class="n">phone</span> <span class="k">is</span> <span class="k">null</span>
+</code></pre></div></div>
+
+<p>The result:</p>
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-------------------------------
+name   |type         | phone
+-------------------------------
+bruce  | seller      | null
+neal   | architect   | null
+</code></pre></div></div>
+
+<p><img src="/assets/img/join-right-anti.png" alt="left anti join" /></p>
+
+<p>You can get a set of workers who do not work and who have a phone number with the next query:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">workers</span> <span class="k">right</span> <span class="k">outer</span> <span class="k">join</span> <span class="n">phones</span> <span class="k">where</span> <span class="n">workers</span><span class="p">.</span><span class="k">type</span> <span class="k">is</span> <span class="k">null</span>
+</code></pre></div></div>
+
+<p>The result:</p>
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-------------------------------
+name   |type         | phone
+-------------------------------
+jeramy | null        | 103
+zach   | null        | 101
+</code></pre></div></div>
+
+<p><img src="/assets/img/join-left-anti.png" alt="right anti join" /></p>
+
+<p>That is all what I want to share with you. I hope the article will come in handy.</p>
+
+<p><a href="https://izebit.ru/sql-join-visialization.html">Visualization of join types</a></p>
+
+
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h6 class="mb-3 fs-5">Related posts</h6>
+
+        <div class="row g-3">
+            
+            <div class="col-12 col-md-4">
+                <a href="/concurrency-models.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            3 Concurrency Models
+                        </div>
+                        <div class="small text-muted">
+                            Aug 11, 2024
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/is-three-tier-architecture-anti-pattern.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Is 3-tier Architecture anti-pattern?
+                        </div>
+                        <div class="small text-muted">
+                            Oct 24, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/garbage-collectors-in-java.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Garbage Collectors in JVM-based languages
+                        </div>
+                        <div class="small text-muted">
+                            Oct 16, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-expectancy-visualization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life expectancy visualization
+                        </div>
+                        <div class="small text-muted">
+                            Nov 26, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-behind-proxy.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life behind proxy
+                        </div>
+                        <div class="small text-muted">
+                            Oct 02, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/reactive-spring-video.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Reactive spring [ru]
+                        </div>
+                        <div class="small text-muted">
+                            Jan 12, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/shutdown-java-app-gracefully.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            How to stop java application gracefully
+                        </div>
+                        <div class="small text-muted">
+                            Oct 26, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/tf-idf-with-hadoop-streaming.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            TF-IDF with Hadoop Streaming
+                        </div>
+                        <div class="small text-muted">
+                            Jul 29, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/java-compile-optimization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Not evident JIT optimizations
+                        </div>
+                        <div class="small text-muted">
+                            Jun 11, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/cpu-optimizations.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            CPU optimizations
+                        </div>
+                        <div class="small text-muted">
+                            May 15, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<footer class="border-top mt-3">
+    <div class="container py-4 text-center">
+        <a href="/" class="fs-5 text-decoration-none text-reset d-block mb-1">
+            © 2026 Artem Konovalov
+        </a>
+
+        <div class="text-muted">
+            This website is a personal blog. Mainly there are
+posts about java, but you can find ones on other topics.
+
+        </div>
+    </div>
+</footer>
+
+
+    </body>
+</html>

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+    <head>
+    <meta charset="utf-8">
+    <meta property="og:locale" content="en_US">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Types of references | Artem Konovalov – Software Engineer</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Types of references" />
+<meta name="author" content="Artem Konovalov" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This website is a personal blog. Mainly there are posts about java, but you can find ones on other topics." />
+<meta property="og:description" content="This website is a personal blog. Mainly there are posts about java, but you can find ones on other topics." />
+<link rel="canonical" href="https://izebit.ru/java-references.html" />
+<meta property="og:url" content="https://izebit.ru/java-references.html" />
+<meta property="og:site_name" content="Artem Konovalov – Software Engineer" />
+<meta property="og:image" content="https://izebit.ru/assets/img/type-of-references-and-gc.jpg" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-04-29T00:00:00-03:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="https://izebit.ru/assets/img/type-of-references-and-gc.jpg" />
+<meta property="twitter:title" content="Types of references" />
+<meta name="google-site-verification" content="MGhCSoTWiTCeUdZ_2tNyZZ5dmg8Yn18pjFuo9HhksIw" />
+<meta name="yandex-verification" content="34c428376cb827b4" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Artem Konovalov"},"dateModified":"2019-04-29T00:00:00-03:00","datePublished":"2019-04-29T00:00:00-03:00","description":"This website is a personal blog. Mainly there are posts about java, but you can find ones on other topics.","headline":"Types of references","image":"https://izebit.ru/assets/img/type-of-references-and-gc.jpg","mainEntityOfPage":{"@type":"WebPage","@id":"https://izebit.ru/java-references.html"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://izebit.ru/assets/logos/photos/main-thumbnail.jpg"},"name":"Artem Konovalov"},"url":"https://izebit.ru/java-references.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <link rel="stylesheet" href="/assets/css/syntax.css">
+    
+        <link rel="stylesheet" href="/assets/css/content.css">
+    
+
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon_icons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon_icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/logos/favicon_icons/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/logos/favicon_icons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="144x144" href="/assets/logos/favicon_icons/favicon-144x144.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/logos/favicon_icons/apple-touch-icon.png">
+
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"></script>
+
+    <script type="text/javascript" id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script><!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-00VK83F1ZX"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-00VK83F1ZX');
+</script></head>
+
+
+    <body>
+
+    <div class="container content pb-5 pt-5 pb-md-4">
+
+    <div class="row">
+      <h1>Types of references</h1>
+      
+
+
+
+
+<div class="pb-5 pt-md-3 pt-1 pb-md-4" >
+   📅 29 Apr 2019 🕑 4 min  read
+</div>
+
+
+        <div class="fs-5">
+            <p><img src="/assets/img/type-of-references-and-gc.jpg" alt="garbage collector and references" /></p>
+
+<p><sub><sup>
+Photo by <a href="https://unsplash.com/@shanerounce" rel="nofollow">Shane Rounce</a> on Unsplash
+</sup></sub></p>
+
+<p>Today, I am going to talk on type of references. There are four types of them:</p>
+<ul>
+  <li><strong>strong</strong></li>
+  <li><strong>weak</strong></li>
+  <li><strong>phantom</strong></li>
+  <li><strong>soft</strong></li>
+</ul>
+
+<p>To use them, except the first type, you should use a particular class from package <code class="language-plaintext highlighter-rouge">java.lang.refs</code>.</p>
+
+<p>So, what is the difference between them and what special traits do they have?
+The difference is how <strong>garbage collector</strong> deals with them.</p>
+
+<h2 id="strong-reference">Strong reference</h2>
+<p>This type of reference is an ordinary reference that is used each time when you declare an object.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">Object</span> <span class="n">obj</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Object</span><span class="o">();</span>
+</code></pre></div></div>
+
+<p>The garbage collector does not collect the object until at least one <strong>strong</strong> reference exists to the object.
+I hope everything is clear about it.</p>
+
+<h3 id="weak-reference">Weak reference</h3>
+<p>This type is completely ignored by the garbage collector. Even if there are some <strong>weak</strong> references point to an object,
+the object will be removed by it. Usually, this kind of references can be useful in cases when we want to avoid <em>memory leaks</em>.
+One of the cases is caches. When there are no references except <strong>weak</strong> ones, we do not want to store objects in our caches and 
+want the garbage collector to remove them.</p>
+
+<h3 id="soft-reference">Soft reference</h3>
+<p>It is similar to the previous type of reference, except one thing. The garbage collector can remove an object that some soft references point to
+in case OutOfMemoryError occurs. It means if JVM does not have enough memory, the garbage collector deletes these objects.</p>
+
+<p>The usage is them is easy:</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">SoftReference</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">softReference</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SoftReference</span><span class="o">&lt;&gt;(</span><span class="s">"it is my answer: "</span><span class="o">);</span>
+<span class="nc">WeakReference</span><span class="o">&lt;</span><span class="nc">BigInteger</span><span class="o">&gt;</span> <span class="n">weakReference</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">WeakReference</span><span class="o">&lt;&gt;(</span><span class="k">new</span> <span class="nc">BigInteger</span><span class="o">(</span><span class="s">"42"</span><span class="o">));</span>
+<span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">softReference</span><span class="o">.</span><span class="na">get</span><span class="o">()</span> <span class="o">+</span> <span class="n">weakReference</span><span class="o">.</span><span class="na">get</span><span class="o">());</span>
+</code></pre></div></div>
+
+<h3 id="phantom-references">Phantom references</h3>
+<p>Before staring talking about <strong>phantom</strong> references, I should give some details about in which way garbage collector releases memory.
+It goes over a graph of references started from the special vertices <strong>GC roots</strong> and checks their availability.
+These vertices denote local variables, method parameters active threads, JNI references, loaded classes loaded by the system loader.</p>
+
+<p>By this way, if the graph does not involve an object, it is considered to be unused. From the garbage collector’s view, it might be removed 
+safely. If a method <code class="language-plaintext highlighter-rouge">finalize()</code> is implemented, an object will be removed in <strong>two stages</strong>:</p>
+<ol>
+  <li>At the first stage, a method <code class="language-plaintext highlighter-rouge">finalize()</code> is called,</li>
+  <li>Then the garbage collector makes sure that the object is still unavailable and then deletes the object.</li>
+</ol>
+
+<p>Thus, in a method <code class="language-plaintext highlighter-rouge">finalize()</code> we might by mistake or on purpose, make an object alive again by passing another object the reference to it.</p>
+
+<p>Getting back to <strong>phantom reference</strong>, it seems a bit of strange type of reference for one thing,  a method <code class="language-plaintext highlighter-rouge">get()</code> returns always <em>null</em>.
+This kind of references is used to implement some logic after calling method <code class="language-plaintext highlighter-rouge">finalize()</code>. Thus, we can implement clean up an object 
+in two steps.</p>
+
+<p>Look at creating a <strong>phantom reference</strong> closely:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">PhantomReference</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">phantomReference</span> 
+        <span class="o">=</span> <span class="k">new</span> <span class="nc">PhantomReference</span><span class="o">&lt;&gt;(</span><span class="s">"I am a mystical reference type"</span><span class="o">,</span> <span class="k">new</span> <span class="nc">ReferenceQueue</span><span class="o">&lt;&gt;());</span>
+</code></pre></div></div>
+
+<p>As you might have noticed, a constructor takes 2 arguments. First of them is an object that a reference points to 
+and the second one is a queue. <br />
+What is the point of it? It will be clear when we figure out how garbage collector deals with references.</p>
+
+<p>when the garbage collector detects an object in one of the cases below:</p>
+<ul>
+  <li><strong>weak reference</strong> exists or</li>
+  <li><strong>soft reference</strong> exists for the object and <code class="language-plaintext highlighter-rouge">OutOfMemoryError</code> occurs or</li>
+  <li>at least, one <strong>phantom reference</strong> exists.</li>
+</ul>
+
+<p>It calls a method <code class="language-plaintext highlighter-rouge">finalize()</code> and then adds the object to the queue. The object is not removed until the queue contains it.
+By this way, we can create a daemon thread, that retrieves elements from the queue and do some stuff. Moreover, it is already implemented in a class
+<code class="language-plaintext highlighter-rouge">java.misc.Cleaner</code>.</p>
+
+<p>Look at the code below:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">Object</span> <span class="n">obj</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Object</span><span class="o">();</span>
+<span class="nc">Cleaner</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">obj</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"the object is removed!"</span><span class="o">));</span>
+</code></pre></div></div>
+
+<p>The code looks very robust and work with <strong>phantom references</strong> is hided.</p>
+
+<p>Pay your attention that usage of <code class="language-plaintext highlighter-rouge">finalize()</code> is not recommended in many cases and if you do not know exactly what you do, you
+should avoid using finalization mechanism.</p>
+
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h6 class="mb-3 fs-5">Related posts</h6>
+
+        <div class="row g-3">
+            
+            <div class="col-12 col-md-4">
+                <a href="/concurrency-models.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            3 Concurrency Models
+                        </div>
+                        <div class="small text-muted">
+                            Aug 11, 2024
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/is-three-tier-architecture-anti-pattern.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Is 3-tier Architecture anti-pattern?
+                        </div>
+                        <div class="small text-muted">
+                            Oct 24, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/garbage-collectors-in-java.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Garbage Collectors in JVM-based languages
+                        </div>
+                        <div class="small text-muted">
+                            Oct 16, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-expectancy-visualization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life expectancy visualization
+                        </div>
+                        <div class="small text-muted">
+                            Nov 26, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-behind-proxy.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life behind proxy
+                        </div>
+                        <div class="small text-muted">
+                            Oct 02, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/reactive-spring-video.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Reactive spring [ru]
+                        </div>
+                        <div class="small text-muted">
+                            Jan 12, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/shutdown-java-app-gracefully.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            How to stop java application gracefully
+                        </div>
+                        <div class="small text-muted">
+                            Oct 26, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/tf-idf-with-hadoop-streaming.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            TF-IDF with Hadoop Streaming
+                        </div>
+                        <div class="small text-muted">
+                            Jul 29, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/java-compile-optimization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Not evident JIT optimizations
+                        </div>
+                        <div class="small text-muted">
+                            Jun 11, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/cpu-optimizations.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            CPU optimizations
+                        </div>
+                        <div class="small text-muted">
+                            May 15, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<footer class="border-top mt-3">
+    <div class="container py-4 text-center">
+        <a href="/" class="fs-5 text-decoration-none text-reset d-block mb-1">
+            © 2026 Artem Konovalov
+        </a>
+
+        <div class="text-muted">
+            This website is a personal blog. Mainly there are
+posts about java, but you can find ones on other topics.
+
+        </div>
+    </div>
+</footer>
+
+
+    </body>
+</html>

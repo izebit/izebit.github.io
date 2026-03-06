@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+    <head>
+    <meta charset="utf-8">
+    <meta property="og:locale" content="en_US">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>How to create init.d system service | Artem Konovalov – Software Engineer</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="How to create init.d system service" />
+<meta name="author" content="Artem Konovalov" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Sometimes it is needed not to only run program, but be sure that this process will work after reboot a host or in some unexpected fails. There are several ways. One of them is to look after the process manually and another one is to let an operating system takes care about it on its own. All you need for it is to make your program a system service. This article is about exactly this case. To be more precisely, it says how to create a system service with update-rc.d." />
+<meta property="og:description" content="Sometimes it is needed not to only run program, but be sure that this process will work after reboot a host or in some unexpected fails. There are several ways. One of them is to look after the process manually and another one is to let an operating system takes care about it on its own. All you need for it is to make your program a system service. This article is about exactly this case. To be more precisely, it says how to create a system service with update-rc.d." />
+<link rel="canonical" href="https://izebit.ru/linux-init-d-service.html" />
+<meta property="og:url" content="https://izebit.ru/linux-init-d-service.html" />
+<meta property="og:site_name" content="Artem Konovalov – Software Engineer" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-03-03T00:00:00-03:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="How to create init.d system service" />
+<meta name="google-site-verification" content="MGhCSoTWiTCeUdZ_2tNyZZ5dmg8Yn18pjFuo9HhksIw" />
+<meta name="yandex-verification" content="34c428376cb827b4" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Artem Konovalov"},"dateModified":"2019-03-03T00:00:00-03:00","datePublished":"2019-03-03T00:00:00-03:00","description":"Sometimes it is needed not to only run program, but be sure that this process will work after reboot a host or in some unexpected fails. There are several ways. One of them is to look after the process manually and another one is to let an operating system takes care about it on its own. All you need for it is to make your program a system service. This article is about exactly this case. To be more precisely, it says how to create a system service with update-rc.d.","headline":"How to create init.d system service","mainEntityOfPage":{"@type":"WebPage","@id":"https://izebit.ru/linux-init-d-service.html"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://izebit.ru/assets/logos/photos/main-thumbnail.jpg"},"name":"Artem Konovalov"},"url":"https://izebit.ru/linux-init-d-service.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <link rel="stylesheet" href="/assets/css/syntax.css">
+    
+        <link rel="stylesheet" href="/assets/css/content.css">
+    
+
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon_icons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon_icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/logos/favicon_icons/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/logos/favicon_icons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="144x144" href="/assets/logos/favicon_icons/favicon-144x144.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/logos/favicon_icons/apple-touch-icon.png">
+
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"></script>
+
+    <script type="text/javascript" id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script><!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-00VK83F1ZX"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-00VK83F1ZX');
+</script></head>
+
+
+    <body>
+
+    <div class="container content pb-5 pt-5 pb-md-4">
+
+    <div class="row">
+      <h1>How to create init.d system service</h1>
+      
+
+
+
+
+<div class="pb-5 pt-md-3 pt-1 pb-md-4" >
+   📅 03 Mar 2019 🕑 5 min  read
+</div>
+
+
+        <div class="fs-5">
+            <p>Sometimes it is needed not to only run program, but be sure that this process will work after reboot a host or in some unexpected fails.
+There are several ways. One of them is to look after the process manually and another one is to let an operating system takes care about it on its own.
+All you need for it is to make your program a system service. This article is about exactly this case. To be more precisely, 
+it says how to create a system service with <strong>update-rc.d</strong>.</p>
+
+<p>Look at it closely and break the process down into several steps:</p>
+<ol>
+  <li>create a script to rule life cycle of the program.</li>
+  <li>grant all needed permissions to the script</li>
+  <li>register the created script as a linux system service</li>
+  <li>enable the system service</li>
+</ol>
+
+<p>As you can see, it is not big deal.</p>
+
+<h3 id="1-create-a-script">1. create a script</h3>
+
+<p>On the first stage, we should create a file <strong>my-service</strong> located in a directory <em>/etc/init.d/</em>.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">touch</span> /etc/init.d/my-service
+</code></pre></div></div>
+
+<p>The template of the script is as follows:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="c">#</span>
+<span class="c">### BEGIN INIT INFO</span>
+<span class="c"># Provides:             my-service</span>
+<span class="c"># Required-Start:       $syslog $remote_fs</span>
+<span class="c"># Required-Stop:        $syslog $remote_fs</span>
+<span class="c"># Should-Start:         $local_fs</span>
+<span class="c"># Should-Stop:          $local_fs</span>
+<span class="c"># Default-Start:        2 3 4 5</span>
+<span class="c"># Default-Stop:         0 1 6</span>
+<span class="c"># Short-Description:    My Service</span>
+<span class="c"># Description:          My Service</span>
+<span class="c">### END INIT INFO</span>
+<span class="c">#</span>
+<span class="c">### BEGIN CHKCONFIG INFO</span>
+<span class="c"># chkconfig: 2345 55 25</span>
+<span class="c"># description: My Service</span>
+<span class="c">### END CHKCONFIG INFO</span>
+ 
+<span class="nv">NAME</span><span class="o">=</span><span class="s2">"my-service"</span>
+<span class="nv">APPLICATION_PATH</span><span class="o">=</span><span class="s2">"/opt/my-super-program"</span>
+<span class="nv">PID_FILE</span><span class="o">=</span><span class="s2">"</span><span class="nv">$APPLICATION_PATH</span><span class="s2">/file.pid"</span>
+<span class="nv">COMMAND</span><span class="o">=</span><span class="s2">"/usr/bin/python </span><span class="nv">$APPLICATION_PATH</span><span class="s2">/script.py 2&gt; &amp;1 &gt; /dev/null &amp; "</span>
+
+
+<span class="c"># run the program and write its pid to a file.</span>
+start<span class="o">()</span> <span class="o">{</span>
+    <span class="nb">echo</span> <span class="s2">"Starting </span><span class="nv">$NAME</span><span class="s2">"</span>
+    <span class="nb">eval</span> <span class="nv">$COMMAND</span>
+    <span class="nv">PID</span><span class="o">=</span><span class="si">$(</span>pgrep <span class="nt">-f</span> <span class="nv">$NAME</span><span class="si">)</span> 
+    <span class="nb">echo</span> <span class="nv">$PID</span> <span class="o">&gt;&gt;</span> <span class="nv">$PID_FILE</span>
+    <span class="nv">RETVAL</span><span class="o">=</span>0
+<span class="o">}</span>
+
+<span class="c"># stop the process </span>
+<span class="c"># get pid value from the file and kill the process with it.</span>
+stop<span class="o">()</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">[</span> <span class="nt">-f</span> <span class="nv">$PID_FILE</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+        </span><span class="nb">echo</span> <span class="s2">"Shutting down </span><span class="nv">$NAME</span><span class="s2">"</span>
+        <span class="c"># kill the process</span>
+        <span class="nb">kill</span> <span class="nt">-9</span> <span class="si">$(</span><span class="nb">cat</span> <span class="nv">$PID_FILE</span><span class="si">)</span>
+        <span class="nb">rm</span> <span class="nt">-f</span> <span class="nv">$PID_FILE</span>
+        <span class="nv">RETVAL</span><span class="o">=</span>0
+    <span class="k">else
+        </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$NAME</span><span class="s2"> is not running."</span>
+        <span class="nv">RETVAL</span><span class="o">=</span>0
+    <span class="k">fi</span>
+<span class="o">}</span>
+ 
+<span class="c"># restart</span>
+<span class="c"># nothing complex</span>
+restart<span class="o">()</span> <span class="o">{</span>
+    stop
+    start
+<span class="o">}</span>
+
+<span class="c"># in case if list of running processes contains a process run from the a certain directory,</span>
+<span class="c"># it mean that our program has been already started otherwise it is stopped.</span>
+status<span class="o">()</span> <span class="o">{</span>
+    <span class="nb">echo</span> <span class="sb">`</span>ps <span class="nt">-ef</span><span class="sb">`</span> | <span class="nb">grep</span> <span class="nt">-q</span> <span class="s2">"</span><span class="nv">$APPLICATION_PATH</span><span class="s2">"</span>
+    <span class="k">if</span> <span class="o">[</span> <span class="s2">"</span><span class="nv">$?</span><span class="s2">"</span> <span class="nt">-eq</span> <span class="s2">"0"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+        </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$NAME</span><span class="s2"> is running."</span>
+        <span class="nv">RETVAL</span><span class="o">=</span>0
+    <span class="k">else
+        </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$NAME</span><span class="s2"> is not running."</span>
+        <span class="nv">RETVAL</span><span class="o">=</span>3
+    <span class="k">fi</span>
+<span class="o">}</span>
+
+<span class="c"># a function will be called according to a given command </span>
+<span class="k">case</span> <span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span> <span class="k">in
+    </span>start<span class="p">)</span>
+        start
+        <span class="p">;;</span>
+    stop<span class="p">)</span>
+        stop
+        <span class="p">;;</span>
+    status<span class="p">)</span>
+        status
+        <span class="p">;;</span>
+    restart<span class="p">)</span>
+        restart
+        <span class="p">;;</span>
+    <span class="k">*</span><span class="p">)</span>
+        <span class="nb">echo</span> <span class="s2">"Usage: {start|stop|status|restart}"</span>
+        <span class="nb">exit </span>1
+        <span class="p">;;</span>
+<span class="k">esac</span>
+<span class="nb">exit</span> <span class="nv">$RETVAL</span>
+</code></pre></div></div>
+
+<p>Given template is denoted to create a service that is started from the directory <strong>APPLICATION_PATH</strong> by the command <strong>COMMAND</strong>.
+To check the status of the process, <strong>PID_FILE</strong> is needed. The file contains a pid value of running process. 
+Important, the program has to be run as a daemon and does not print information to console. The prefix <code class="language-plaintext highlighter-rouge">_2&gt; &amp;1 &gt; /dev/null &amp;</code> does exactly 
+what we need.</p>
+
+<p>From the previous script, we can notice that the script involves 3 parts:
+1) header with comments and system information. This part contains, for example, dependencies of the service and in which order 
+they have to be started and stopped. Also, it contains the system title and system description. 
+2) the main part that handles all received commands.
+3) functions that implement stop, start, status check and so on operations.</p>
+
+<h3 id="2-grant-permissions">2. grant permissions</h3>
+
+<p>To run the script, we have to grant some permissions to the file. The command below does it:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">chmod</span> +x /etc/init.d/my-service 
+</code></pre></div></div>
+
+<h3 id="3-register-a-script-as-a-system-service">3. register a script as a system service</h3>
+
+<p>In order to make operating system know about existence of our service, we have to register it with next command:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>update-rc.d my-service defaults
+</code></pre></div></div>
+
+<h3 id="4-enable-a-system-service">4. enable a system service</h3>
+
+<p>However, it is not all. After registering, our service will be known to the OS and we can execute some command on it.
+For instance, to run or to stop:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>service my-service start
+</code></pre></div></div>
+
+<p>But, the service will not be started automatically after reboot a host. It is default behavior for Linux. To change it, 
+we have to execute a command with next parameters:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>update-rc.d my-service <span class="nb">enable</span>
+</code></pre></div></div>
+
+<p>After it, your service is completely read to work. 😉</p>
+
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h6 class="mb-3 fs-5">Related posts</h6>
+
+        <div class="row g-3">
+            
+            <div class="col-12 col-md-4">
+                <a href="/concurrency-models.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            3 Concurrency Models
+                        </div>
+                        <div class="small text-muted">
+                            Aug 11, 2024
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/is-three-tier-architecture-anti-pattern.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Is 3-tier Architecture anti-pattern?
+                        </div>
+                        <div class="small text-muted">
+                            Oct 24, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/garbage-collectors-in-java.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Garbage Collectors in JVM-based languages
+                        </div>
+                        <div class="small text-muted">
+                            Oct 16, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-expectancy-visualization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life expectancy visualization
+                        </div>
+                        <div class="small text-muted">
+                            Nov 26, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-behind-proxy.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life behind proxy
+                        </div>
+                        <div class="small text-muted">
+                            Oct 02, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/reactive-spring-video.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Reactive spring [ru]
+                        </div>
+                        <div class="small text-muted">
+                            Jan 12, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/shutdown-java-app-gracefully.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            How to stop java application gracefully
+                        </div>
+                        <div class="small text-muted">
+                            Oct 26, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/tf-idf-with-hadoop-streaming.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            TF-IDF with Hadoop Streaming
+                        </div>
+                        <div class="small text-muted">
+                            Jul 29, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/java-compile-optimization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Not evident JIT optimizations
+                        </div>
+                        <div class="small text-muted">
+                            Jun 11, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/cpu-optimizations.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            CPU optimizations
+                        </div>
+                        <div class="small text-muted">
+                            May 15, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<footer class="border-top mt-3">
+    <div class="container py-4 text-center">
+        <a href="/" class="fs-5 text-decoration-none text-reset d-block mb-1">
+            © 2026 Artem Konovalov
+        </a>
+
+        <div class="text-muted">
+            This website is a personal blog. Mainly there are
+posts about java, but you can find ones on other topics.
+
+        </div>
+    </div>
+</footer>
+
+
+    </body>
+</html>

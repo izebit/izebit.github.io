@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+    <head>
+    <meta charset="utf-8">
+    <meta property="og:locale" content="en_US">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Garbage Collectors in JVM-based languages | Artem Konovalov – Software Engineer</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Garbage Collectors in JVM-based languages" />
+<meta name="author" content="Artem Konovalov" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This website is a personal blog. Mainly there are posts about java, but you can find ones on other topics." />
+<meta property="og:description" content="This website is a personal blog. Mainly there are posts about java, but you can find ones on other topics." />
+<link rel="canonical" href="https://izebit.ru/garbage-collectors-in-java.html" />
+<meta property="og:url" content="https://izebit.ru/garbage-collectors-in-java.html" />
+<meta property="og:site_name" content="Artem Konovalov – Software Engineer" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-10-16T00:00:00-03:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Garbage Collectors in JVM-based languages" />
+<meta name="google-site-verification" content="MGhCSoTWiTCeUdZ_2tNyZZ5dmg8Yn18pjFuo9HhksIw" />
+<meta name="yandex-verification" content="34c428376cb827b4" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Artem Konovalov"},"dateModified":"2023-10-16T00:00:00-03:00","datePublished":"2023-10-16T00:00:00-03:00","description":"This website is a personal blog. Mainly there are posts about java, but you can find ones on other topics.","headline":"Garbage Collectors in JVM-based languages","mainEntityOfPage":{"@type":"WebPage","@id":"https://izebit.ru/garbage-collectors-in-java.html"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://izebit.ru/assets/logos/photos/main-thumbnail.jpg"},"name":"Artem Konovalov"},"url":"https://izebit.ru/garbage-collectors-in-java.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <link rel="stylesheet" href="/assets/css/syntax.css">
+    
+        <link rel="stylesheet" href="/assets/css/content.css">
+    
+
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon_icons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon_icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/logos/favicon_icons/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/logos/favicon_icons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="144x144" href="/assets/logos/favicon_icons/favicon-144x144.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/logos/favicon_icons/apple-touch-icon.png">
+
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"></script>
+
+    <script type="text/javascript" id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script><!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-00VK83F1ZX"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-00VK83F1ZX');
+</script></head>
+
+
+    <body>
+
+    <div class="container content pb-5 pt-5 pb-md-4">
+
+    <div class="row">
+      <h1>Garbage Collectors in JVM-based languages</h1>
+      
+
+
+
+
+<div class="pb-5 pt-md-3 pt-1 pb-md-4" >
+   📅 16 Oct 2023 🕑 12 min  read
+</div>
+
+
+        <div class="fs-5">
+            <p><img src="/assets/img/garbage-collectors/thumbnail.png" alt="garbage collectors in java" /></p>
+
+<p>In this topic I would like to talk about <strong>garbage collectors</strong> (GCs). The aim that I target is to give a brief overview of 
+main concepts of Garbage Collectors and list available GC implementations.</p>
+
+<h2>Contents</h2>
+<ol>
+  <li><a href="#definition">What is Garbage Collector?</a></li>
+  <li><a href="#serial">Serial Garbage Collector</a></li>
+  <li><a href="#parallel">Parallel Garbage Collector</a></li>
+  <li><a href="#cms">Concurrent Mark Sweep (CMS) Collector</a></li>
+  <li><a href="#g1">G1 - Garbage First Collector</a></li>
+  <li><a href="#zgc">ZGC - The Z Garbage Collector</a></li>
+  <li><a href="#ShenandoahGC">ShenandoahGC</a></li>
+  <li><a href="#c4">Azul C4 Garbage Collector</a></li>
+  <li><a href="#epsilon">Epsilon Garbage Collector</a></li>
+</ol>
+
+<h2 id="definition"> What is Garbage Collector?</h2>
+
+<blockquote>
+  <p>Garbage Collector is a form of automatic memory management<br />
+— <cite> Wikipedia</cite></p>
+</blockquote>
+
+<p>The component takes care about reclaiming memory that was allocated for objects needed earlier. There are programming languages that don’t provide this functionality and a programmer has to manage memory manually.
+<strong>Java Virtual Machine</strong> (JVM) includes garbage collector. It means that all JVM-based languages e.g. Java, Kotlin, Scala, Clojure supports automatic reclaiming unused objects.<br />
+There are many algorithms that might be applied to check if an object is not needed and
+memory for the object might be reused for other objects. The main idea of them is if there are no references 
+to an object, the object is unreachable and can’t be used. By this way, this type of objects might be deleted safely.</p>
+
+<p><img src="/assets/img/garbage-collectors/references-graph.png" alt="graph of references" /></p>
+
+<p>Garbage Collector traverses the reference graph from the several start points. They are called <strong>GC Roots</strong>. 
+It might be static variables, classes loaded by system class loaders, active threads etc.</p>
+
+<p>There are some common phases of the GC work that encounter in listed below garbage collectors:</p>
+<ol>
+  <li>Identify live objects that are reachable from the GC Roots</li>
+  <li>Reclaim memory held by dead objects</li>
+  <li>Relocate live objects or compact them</li>
+</ol>
+
+<p>Let’s talk about what type of garbage collectors you can use if you write code in JVM-based language.</p>
+
+<h2 id="serial">Serial Garbage Collector</h2>
+<p>It’s one of the oldest garbage collector and exists from the first version of JVM. <strong>Serial Garbage Collector</strong> works simply. 
+All running threads are suspended and all references are checked by one thread. It occurs <em>stop-the-world</em> pause.</p>
+
+<p>To enable the GC, use the following command:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java <span class="se">\</span>
+<span class="nt">-XX</span>:+UseSerialGC <span class="c"># enable Serial Garbage Collector</span>
+</code></pre></div></div>
+<h2 id="parallel">Parallel Garbage Collector</h2>
+<p>Based on the name, you might guess how it works. The <strong>Parallel Garbage Collector</strong> works as 
+<strong>Serial Garbage Collector</strong> works, but we can set number of threads. By this way, the total <em>stop-the-world pause</em> must be less if garbage collector works in multi-thread mode.</p>
+
+<p>There are several JVM flags that works with Parallel Garbage Collector.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java <span class="se">\</span>
+<span class="nt">-XX</span>:+UseParallelGC        <span class="c"># enable Parallel Garbage Collector</span>
+<span class="nt">-XX</span>:MaxGCPauseMillis<span class="o">=</span>&lt;N&gt;  <span class="c"># maximum time interval between GC</span>
+<span class="nt">-XX</span>:GCTimeRatio<span class="o">=</span>&lt;N&gt;       <span class="c">#the ratio between GC time and time of execution application</span>
+<span class="nt">-XX</span>:ParallelGCThreads<span class="o">=</span>&lt;N&gt; <span class="c"># number of threads </span>
+</code></pre></div></div>
+
+<h2 id="cms">Concurrent Mark Sweep (CMS) Collector</h2>
+<p>The idea behind a work of the garbage collector is <strong>The Weak Generational Hypothesis</strong>. It says</p>
+
+<blockquote>
+  <p>Objects will die young</p>
+</blockquote>
+
+<p>i.e. the longer an object lives, the longer it will be reachable.</p>
+
+<p><img src="/assets/img/garbage-collectors/weak-hypothesis-of-generation.png" alt="The Weak Generational Hypothesis" /></p>
+
+<p>By this way, there is no need of scanning the whole set of objects. If memory is split into different categories and check them separately, it might be possible to reduce the <em>stop-the-world pause</em> by scanning  regions of memory at different rates.</p>
+
+<p>CMS Collector works in pretty the same way.  All memory is split into 3 regions:</p>
+<ol>
+  <li>Permanent Generation</li>
+  <li>Young Generation</li>
+  <li>Old Generation</li>
+</ol>
+
+<p><strong>Permanent Generation</strong> is a memory region where JVM locates static data e.g. loaded classes metadata, static methods, static variables.  <br />
+<strong>Young Generation</strong> is a segment where JVM allocates memory for a new objects. After several GC collections, if an object is still alive, it will be moved to <strong>Old Generation</strong>.<br />
+<strong>Old Generation</strong> is memory region where “old” objects are located. At some point, object might be placed there directly if capacity of <strong>Young Generation</strong> doesn’t let do it.</p>
+
+<p><img src="/assets/img/garbage-collectors/structure-of-heap.png" alt="Structure of the hotspot heap" /></p>
+
+<p>This garbage collector is a combination of two previous ones. <strong>Serial Garbage Collector</strong> and <strong>Parallel Garbage Collector</strong> get on the stage at different time.<br />
+Initially, <strong>Parallel Garbage Collector</strong> pauses application threads twice. At <em>initial pause</em> 
+it marks objects that are reachable from the <em>GC Roots</em> as live. Then <strong>Parallel Garbage Collector</strong> traces 
+the available references concurrently and identifies reachable objects without suspending application threads. 
+Since application is running during this step, checked references might be changed. That’s why <strong>Parallel Garbage Collector</strong> needs the second <em>remark</em> pause. 
+After it, all objects that aren’t reachable might be removed and live objects are compacted. This operation happens during <em>Concurrent Sweep</em> phase.<br />
+When <strong>Old Generation</strong> becomes full <strong>Serial Collector</strong> starts working. In this case, all application threads are stopped while collection is done.</p>
+
+<p>There are several JVM flags that might come in handy to work with CMS Collector:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java <span class="se">\</span>
+<span class="nt">-XX</span>:+UseConcMarkSweepGC      <span class="c"># enable Concurrent Mark &amp; Sweep Garbage Collector</span>
+<span class="nt">-XX</span>:ConcGCThreads<span class="o">=</span>&lt;N&gt;        <span class="c"># total count of threads for GC</span>
+<span class="nt">-XX</span>:+CMSScavengeBeforeRemark <span class="c"># run remark stage after GC execution on new generation area</span>
+<span class="nt">-XX</span>:CMSWaitDuration          <span class="c"># run GC on tenured are after GC execution on new generation</span>
+<span class="nt">-XX</span>:ParallelGCThreads<span class="o">=</span>&lt;N&gt;    <span class="c"># count of threads for parallel GC execution</span>
+<span class="nt">-XX</span>:+UseParNewGC             <span class="c"># use parallelism during GC on new generation area</span>
+</code></pre></div></div>
+
+<h4 id="links">Links:</h4>
+<ul>
+  <li><a href="https://docs.oracle.com/en/java/javase/11/gctuning/concurrent-mark-sweep-cms-collector.html#GUID-FF8150AC-73D9-4780-91DD-148E63FA1BFF" rel="nofollow">HotSpot Virtual Machine Garbage Collection Tuning Guide</a></li>
+</ul>
+
+<h2 id="g1">G1 - Garbage First Collector</h2>
+<p>Making latency predictable for application running on JVM is a challenging task. G1 Collector tries to keep <em>stop-the-world pause</em> in fixed bounders. <br />
+In order to do it, all generations are split into equal-sized regions of memory. Based on calculated statistics, G1 can estimate how many regions it can check in set interval.</p>
+
+<p><img src="/assets/img/garbage-collectors/g1-heap-structure.png" alt="Structure of G1 heap" /></p>
+
+<p>At some cases, If an object requires larger and equal the size of a half region, this type of object gets allocated as sequence of several regions. This objects are called <strong>Humongous Objects</strong> .</p>
+
+<p>G1 concentrates efforts on regions of <strong>Young Generation</strong> and checks regions of <strong>Old Generation</strong> occasionally. After <strong>initial mark</strong> the Garbage Collector pick the regions that will yield a large amount of free space. This approach lets the garbage collector be most effective. That’s why it is called <strong>Garbage First</strong> - blocks with garbage will be handled first.<br />
+After each <strong>Young Generation</strong> Collection, all remaining live objects are evacuated and compacted to an available region of <strong>Young Generation</strong> or if the threshold is met, objects are moved to a region of <strong>Old Generation</strong> accordingly.</p>
+
+<p>The following flags might be used to tune G1 settings:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java <span class="se">\</span>
+<span class="nt">-XX</span>:+UseG1GC                       <span class="c"># enable Garbage First Collector</span>
+<span class="nt">-XX</span>:MaxGCPauseMillis<span class="o">=</span>&lt;N&gt;           <span class="c"># Maximum interval between GC pauses</span>
+<span class="nt">-XX</span>:GCPauseIntervalMillis<span class="o">=</span>&lt;N&gt;      <span class="c"># Maximum interval between G1 executions</span>
+<span class="nt">-XX</span>:G1HeapRegionSize<span class="o">=</span>&lt;size&gt;[k|m|G] <span class="c"># heap memory size</span>
+<span class="nt">-XX</span>:ParallelGCThreads<span class="o">=</span>&lt;N&gt;          <span class="c"># count of threads for parallel GC execution</span>
+<span class="nt">-XX</span>:ConcGCThreads<span class="o">=</span>&lt;N&gt;              <span class="c"># total count of threads for GC</span>
+</code></pre></div></div>
+
+<h4 id="links-1">Links:</h4>
+<ul>
+  <li><a href="https://docs.oracle.com/en/java/javase/11/gctuning/garbage-first-g1-garbage-collector1.html#GUID-6D6B18B1-063B-48FF-99E3-5AF059C43CE8" rel="nofollow">HotSpot Virtual Machine Garbage Collection Tuning Guide</a></li>
+  <li><a href="https://www.oracle.com/technetwork/tutorials/tutorials-1876574.html" rel="nofollow">Getting Started with the G1 Garbage Collector</a></li>
+</ul>
+
+<h2 id="zgc">ZGC - The Z Garbage Collector</h2>
+<p>This garbage collector targets to provide low latency, less 10ms and to work with multi-terabytes heap. It guarantees <code class="language-plaintext highlighter-rouge">O(1)</code> pause duration.
+In case of big capacity of heap, a phase with moving objects and compaction takes too much time. Moreover it requires suspending application threads, in order to change references to new locations of relocated objects. <strong>ZGC</strong> solves this problem concurrently without <em>stop-the-world pause</em>. The trick that lets <strong>Z Garbage Collector</strong> do it is <strong>load GC barriers</strong> and <strong>coloured references</strong>.</p>
+
+<p>There are 3 stages of GCs work:</p>
+<ol>
+  <li>Concurrent Mark - identify objects as reachable</li>
+  <li>Concurrent Relocate - to avoid memory fragmentation or promote object to Old Generation, move objects to another region</li>
+  <li>Concurrent Remap - change references to new locations of evacuated objects.</li>
+</ol>
+
+<p>All these stages are performed without <em>stop-the-world pause</em>, thus application threads are not suspended. Let’s look at how it might be done.
+64-bit architecture provides 64 bits for memory addressing. However, not all 64 bits are used. Only 42 bits are used for addressing. 
+By this way, other bits might store meta information. <strong>Coloured References</strong> are references where 4 bits are used by <strong>ZGC</strong>.</p>
+
+<p><img src="/assets/img/garbage-collectors/structure-of-coloured-reference.png" alt="Structure of Coloured References" /></p>
+
+<p><strong>Finalizable Bit</strong> means that object is available through a finalizer
+<strong>Remapped Bit</strong> denotes that reference is up to date and points to the current location
+<strong>Marked 0</strong> and <strong>Marked 1</strong> bits are used to mark reachable objects.</p>
+
+<p><strong>Load GC barrier</strong> is a piece of code injected by JIT Compiler for all references. Each time when <strong>ZGC</strong> traverse the reference graph or application thread loads a variable through a reference, a load GC barrier checks a <strong>coloured reference</strong> and there can be 2 cases:</p>
+<ol>
+  <li>if <strong>Remapped</strong> bit is 0 then variable might be loaded without any additional actions safely.</li>
+  <li>otherwise there are following actions must be done
+    <ol>
+      <li>reference colour must be fixed</li>
+      <li>some actions must be done with the object <strong>atomically</strong> depends on the current stage of Garbage Collector, e.g. moving object to another location, change reference to a new location etc.</li>
+    </ol>
+  </li>
+</ol>
+
+<p>Like in case of <strong>G1 Collector</strong>, there are generational regions but have different size.
+2 phases:</p>
+<ol>
+  <li><em>Minor Collection</em> happens when ZGC works with <strong>Young Generation</strong>.</li>
+  <li><em>Major Collection</em> - the Garbage Collector works with both generations.</li>
+</ol>
+
+<p>As we can see we pays additional cost for loading references but this cost is not huge and it might be a trade-off between 
+slight decreasing of application performance and extremely low GC pauses.</p>
+
+<p>The following command is used to enable the <strong>ZGC</strong>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java <span class="se">\</span>
+<span class="nt">-XX</span>:+UseZGC         <span class="c"># enable ZGC</span>
+<span class="nt">-XX</span>:+ZGenerational  <span class="c"># Generational ZGC is enabled</span>
+</code></pre></div></div>
+
+<h4 id="links-2">Links:</h4>
+<ul>
+  <li><a href="https://docs.oracle.com/en/java/javase/11/gctuning/z-garbage-collector1.html#GUID-A5A42691-095E-47BA-B6DC-FB4E5FAA43D0" rel="nofollow">HotSpot Virtual Machine Garbage Collection Tuning Guide</a></li>
+  <li><a href="https://www.youtube.com/watch?v=WU_mqNBEacw" rel="nofollow">[VDT19] Concurrent Garbage Collectors: ZGC &amp; Shenandoah by Simone Bordet [IT]</a></li>
+  <li><a href="https://wiki.openjdk.org/display/zgc" rel="nofollow">The Z Garbage Collector (ZGC)</a></li>
+</ul>
+
+<h2 id="ShenandoahGC">ShenandoahGC</h2>
+<p>This garbage collector is available in RedHat OpenJDK &amp; AdoptOpenJDK builds.
+It uses the same approach like <strong>Z Garbage Collector</strong>. The notable difference between two garbage collectors is <strong>ShenandoahGC</strong> works also on 32-bit architecture.</p>
+
+<p>Instead of using <strong>Coloured references</strong>, <strong>ShenandoahGC</strong> stores metadata in <em>HostSpot Object Header</em>. The header involves <strong>Forward Pointer</strong> that points to a current location or a new location of objects after performing <em>relocate</em> stage.
+The garbage collector alike ZGC uses <strong>Load GC Barriers</strong>. The logic of work is the same - to check the current phase of the GC work and to perform some actions depends on the phase or just to follow to the point.</p>
+
+<p><img src="/assets/img/garbage-collectors/forwarding-pointer.png" alt="Forwarding references" /></p>
+
+<p>There are 3 stages of the GC work:</p>
+<ol>
+  <li>Concurrent Mark - mark all reachable objects as alive</li>
+  <li>Concurrent Evacuation - move live objects to new regions or compact them</li>
+  <li>Concurrent Update References - update references to new location
+All these stages might be merged into one. It is called <strong>Traversal Mode</strong>.</li>
+</ol>
+
+<p>To use this <strong>ShenandoahGC</strong>, enable the JVM flag below:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java 
+<span class="nt">-XX</span>:+UseShenandoahGC <span class="c"># enable Shenandoah Garbage Collector</span>
+</code></pre></div></div>
+<h4 id="links-3">Links:</h4>
+<ul>
+  <li><a href="https://wiki.openjdk.org/display/shenandoah/Main" rel="nofollow">Shenandoah GC</a></li>
+</ul>
+
+<h2 id="c4">Azul C4 Garbage Collector</h2>
+<p>The full name of GC is <strong>Continuously Concurrent Compacting Collector</strong>, or shortly <strong>C4</strong>.
+This Garbage Collector might be used with Azul Zulu Builds of OpenJDK. It is generational pauseless GC.
+It uses <strong>read barrier</strong> called <strong>The Loaded Value Barrier (LVB)</strong>. Like <strong>ZGC</strong> stores metadata in unused bits of references. It’s field named <strong>Not Marked Through</strong> state. Each time when reference is loaded, the barrier checks the field and if additional actions are needed, they are applied.
+There are 3 phases of C4 algorithm.</p>
+<ol>
+  <li>Marking  - mark all reachable objects</li>
+  <li>Relocation - move objects in order to free up larger consequent memory regions.</li>
+  <li>Remapping - change the references to a new location of relocated objects.</li>
+</ol>
+
+<h4 id="links-4">Links:</h4>
+<ul>
+  <li><a href="https://www.azul.com/sites/default/files/images/c4_paper_acm.pdf" rel="nofollow">C4: The Continuously Concurrent Compacting Collector</a></li>
+  <li><a href="https://www.azul.com/products/components/pgc/" rel="nofollow">Azul C4 Garbage Collector</a></li>
+  <li><a href="https://www.youtube.com/watch?v=ocUx-QUJMfo" rel="nofollow">Really Understanding Garbage Collection Gil Tene Talk QCon SF 2019</a></li>
+  <li><a href="https://www.infoworld.com/article/2078661/jvm-performance-optimization--part-4--c4-garbage-collection-for-low-latency-java-ap.html" rel="nofollow">JVM performance optimization, Part 4: C4 garbage collection for low-latency Java applications</a></li>
+</ul>
+
+<h2 id="epsilon">Epsilon Garbage Collector</h2>
+<p>This garbage collector is pretty simple in comparison to the mentioned earlier ones. It doesn’t collector garbage. With enabled  <strong>Epsilon GC</strong>  sooner or later <code class="language-plaintext highlighter-rouge">java.lang.OutOfMemoryError</code> occurs. For sure, if you don’t have infinite capacity of RAM or your program doesn’t allocate new objects at all. At some case, it might be a good option, if latency is important and overhead from a garbage collector is not acceptable e.g. microbenchmarking, garbage free or short-running programs.</p>
+
+<p>With following flags you can enable this <strong>Epsilon Garbage Collector</strong>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java <span class="se">\</span>
+XX:+UnlockExperimentalVMOptions   <span class="c"># unlock experimental features</span>
+<span class="nt">-XX</span>:+UseEpsilonGC                 <span class="c"># enable Epsilon Garbage Collector</span>
+</code></pre></div></div>
+
+<h4 id="links-5">Links:</h4>
+<ul>
+  <li><a href="https://blogs.oracle.com/javamagazine/post/epsilon-the-jdks-do-nothing-garbage-collector" rel="nofollow">Epsilon: The JDK’s Do-Nothing Garbage Collector</a></li>
+</ul>
+
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h6 class="mb-3 fs-5">Related posts</h6>
+
+        <div class="row g-3">
+            
+            <div class="col-12 col-md-4">
+                <a href="/concurrency-models.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            3 Concurrency Models
+                        </div>
+                        <div class="small text-muted">
+                            Aug 11, 2024
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/is-three-tier-architecture-anti-pattern.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Is 3-tier Architecture anti-pattern?
+                        </div>
+                        <div class="small text-muted">
+                            Oct 24, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-expectancy-visualization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life expectancy visualization
+                        </div>
+                        <div class="small text-muted">
+                            Nov 26, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-behind-proxy.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life behind proxy
+                        </div>
+                        <div class="small text-muted">
+                            Oct 02, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/reactive-spring-video.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Reactive spring [ru]
+                        </div>
+                        <div class="small text-muted">
+                            Jan 12, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/shutdown-java-app-gracefully.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            How to stop java application gracefully
+                        </div>
+                        <div class="small text-muted">
+                            Oct 26, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/tf-idf-with-hadoop-streaming.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            TF-IDF with Hadoop Streaming
+                        </div>
+                        <div class="small text-muted">
+                            Jul 29, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/java-compile-optimization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Not evident JIT optimizations
+                        </div>
+                        <div class="small text-muted">
+                            Jun 11, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/cpu-optimizations.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            CPU optimizations
+                        </div>
+                        <div class="small text-muted">
+                            May 15, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/getting-started-with-selenide.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Getting started with Selenide
+                        </div>
+                        <div class="small text-muted">
+                            Apr 05, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<footer class="border-top mt-3">
+    <div class="container py-4 text-center">
+        <a href="/" class="fs-5 text-decoration-none text-reset d-block mb-1">
+            © 2026 Artem Konovalov
+        </a>
+
+        <div class="text-muted">
+            This website is a personal blog. Mainly there are
+posts about java, but you can find ones on other topics.
+
+        </div>
+    </div>
+</footer>
+
+
+    </body>
+</html>

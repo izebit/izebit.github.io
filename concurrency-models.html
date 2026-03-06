@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+    <head>
+    <meta charset="utf-8">
+    <meta property="og:locale" content="en_US">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>3 Concurrency Models | Artem Konovalov – Software Engineer</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="3 Concurrency Models" />
+<meta name="author" content="Artem Konovalov" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="First, the goal of the post isn’t covering all existing concurrency models. The post is inspired by the book “Seven Concurrency Models in Seven Weeks When Threads Unravel” by Paul Butcher." />
+<meta property="og:description" content="First, the goal of the post isn’t covering all existing concurrency models. The post is inspired by the book “Seven Concurrency Models in Seven Weeks When Threads Unravel” by Paul Butcher." />
+<link rel="canonical" href="https://izebit.ru/concurrency-models.html" />
+<meta property="og:url" content="https://izebit.ru/concurrency-models.html" />
+<meta property="og:site_name" content="Artem Konovalov – Software Engineer" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-08-11T00:00:00-03:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="3 Concurrency Models" />
+<meta name="google-site-verification" content="MGhCSoTWiTCeUdZ_2tNyZZ5dmg8Yn18pjFuo9HhksIw" />
+<meta name="yandex-verification" content="34c428376cb827b4" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Artem Konovalov"},"dateModified":"2024-08-11T00:00:00-03:00","datePublished":"2024-08-11T00:00:00-03:00","description":"First, the goal of the post isn’t covering all existing concurrency models. The post is inspired by the book “Seven Concurrency Models in Seven Weeks When Threads Unravel” by Paul Butcher.","headline":"3 Concurrency Models","mainEntityOfPage":{"@type":"WebPage","@id":"https://izebit.ru/concurrency-models.html"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://izebit.ru/assets/logos/photos/main-thumbnail.jpg"},"name":"Artem Konovalov"},"url":"https://izebit.ru/concurrency-models.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <link rel="stylesheet" href="/assets/css/syntax.css">
+    
+        <link rel="stylesheet" href="/assets/css/content.css">
+    
+
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon_icons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon_icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/logos/favicon_icons/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/logos/favicon_icons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="144x144" href="/assets/logos/favicon_icons/favicon-144x144.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/logos/favicon_icons/apple-touch-icon.png">
+
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"></script>
+
+    <script type="text/javascript" id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script><!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-00VK83F1ZX"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-00VK83F1ZX');
+</script></head>
+
+
+    <body>
+
+    <div class="container content pb-5 pt-5 pb-md-4">
+
+    <div class="row">
+      <h1>3 Concurrency Models</h1>
+      
+
+
+
+
+<div class="pb-5 pt-md-3 pt-1 pb-md-4" >
+   📅 11 Aug 2024 🕑 7 min  read
+</div>
+
+
+        <div class="fs-5">
+            <p>First, the goal of the post isn’t covering all existing concurrency models. The post is inspired by the book 
+“Seven Concurrency Models in Seven Weeks When Threads Unravel” by Paul Butcher.</p>
+
+<p>Before diving into the topic, it seems important to remind the difference between concurrency and parallelism. 
+These two terms are pretty similar but have different meanings. The good explanation I have found in the book “Solution Architect’s Handbook” by Shrivastava:</p>
+
+<blockquote>
+  <p>People often get confused between parallelism and concurrency by thinking they are both the same thing; however, 
+concurrency is different from parallelism. In parallelism, your application divides an enormous task into smaller 
+subtasks, which it can process in parallel with a dedicated resource for each subtask. In concurrency, however, 
+an application processes multiple tasks simultaneously by utilising shared resources among the threads.</p>
+</blockquote>
+
+<p>In other words, concurrency is a part of implementation, but parallelism is a way of combining different tasks and isn’t part of internal implementation.<br />
+Now, we are ready to move forward.</p>
+
+<h2 id="mutex-and-blockers">Mutex and blockers</h2>
+
+<p>The model is straightforward and intuitive. When we work with this model, we have to deal with threads 
+face-to-face. We have to think about how to split a task into subtasks, how to initiate threads, how to 
+synchronize threads by mutex and locks. Convenience and in which level programming is error-prone highly depends on 
+tools that programming language gives and guarantees that its memory model provides.</p>
+
+<p>To make it clear, let’s write a simple example that calculates the count of words. We can do it concurrently. We use here 
+the classic <em>Producer-Consumer Pattern</em>. There are two types of threads: <em>Readers</em> and <em>Counters</em>.</p>
+
+<p>The <em>Readers</em> fetches file content, splits text into words and put them in the common queue. The last readers 
+operation is decreasing number of running readers.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@AllArgsConstructor</span>  
+<span class="kd">private</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">Reader</span> <span class="kd">implements</span> <span class="nc">Callable</span><span class="o">&lt;</span><span class="nc">Boolean</span><span class="o">&gt;</span> <span class="o">{</span>  
+    <span class="kd">private</span> <span class="kd">final</span> <span class="nc">Queue</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">queue</span><span class="o">;</span>  
+    <span class="kd">private</span> <span class="kd">final</span> <span class="nc">String</span> <span class="n">file</span><span class="o">;</span>  
+    <span class="kd">private</span> <span class="kd">final</span> <span class="nc">AtomicInteger</span> <span class="n">countOfRunningReaders</span><span class="o">;</span>  
+  
+    <span class="nd">@Override</span>  
+    <span class="nd">@SneakyThrows</span>   
+    <span class="kd">public</span> <span class="nc">Boolean</span> <span class="nf">call</span><span class="o">()</span> <span class="o">{</span>  
+        <span class="nc">Files</span><span class="o">.</span><span class="na">lines</span><span class="o">(</span><span class="nc">Path</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">file</span><span class="o">))</span>  
+                <span class="o">.</span><span class="na">flatMap</span><span class="o">(</span><span class="n">line</span> <span class="o">-&gt;</span> <span class="nc">Arrays</span><span class="o">.</span><span class="na">stream</span><span class="o">(</span><span class="n">line</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">" "</span><span class="o">)))</span>  
+                <span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="nl">queue:</span><span class="o">:</span><span class="n">add</span><span class="o">);</span>  
+  
+        <span class="n">countOfRunningReaders</span><span class="o">.</span><span class="na">decrementAndGet</span><span class="o">();</span>  
+        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>  
+    <span class="o">}</span>  
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>The <em>Counters</em> read words from the queue and calculate numbers of words. If the count of running readers equals 0, <em>Counters</em> stop working.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@AllArgsConstructor</span>  
+<span class="kd">private</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">Counter</span> <span class="kd">implements</span> <span class="nc">Callable</span><span class="o">&lt;</span><span class="nc">Map</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">&gt;&gt;</span> <span class="o">{</span>  
+    <span class="kd">private</span> <span class="kd">final</span> <span class="nc">BlockingQueue</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">queue</span><span class="o">;</span>  
+    <span class="kd">private</span> <span class="kd">final</span> <span class="nc">AtomicInteger</span> <span class="n">countOfRunningReaders</span><span class="o">;</span>  
+  
+    <span class="nd">@Override</span>  
+    <span class="nd">@SneakyThrows</span>    
+    <span class="kd">public</span> <span class="nc">Map</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">&gt;</span> <span class="nf">call</span><span class="o">()</span> <span class="o">{</span>  
+        <span class="kt">var</span> <span class="n">counter</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">HashMap</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">&gt;();</span>  
+  
+        <span class="k">while</span> <span class="o">(</span><span class="n">countOfRunningReaders</span><span class="o">.</span><span class="na">get</span><span class="o">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>  
+            <span class="kt">var</span> <span class="n">word</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="na">poll</span><span class="o">(</span><span class="mi">200</span><span class="o">,</span> <span class="nc">TimeUnit</span><span class="o">.</span><span class="na">MILLISECONDS</span><span class="o">);</span>  
+            <span class="k">if</span> <span class="o">(</span><span class="n">word</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>  
+                <span class="k">continue</span><span class="o">;</span>  
+            <span class="n">counter</span><span class="o">.</span><span class="na">merge</span><span class="o">(</span><span class="n">word</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="o">(</span><span class="n">k</span><span class="o">,</span> <span class="n">v</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">v</span> <span class="o">+</span> <span class="mi">1</span><span class="o">);</span>  
+        <span class="o">}</span>  
+  
+        <span class="k">return</span> <span class="n">counter</span><span class="o">;</span>  
+    <span class="o">}</span>  
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>The last step is to initiate the queue and thread pool. It will be used to submit our readers and counters. When <em>Counters</em> 
+finish working, we get word numbers calculated by each <em>Counter</em> and combine their results into a sharable map.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">var</span> <span class="n">files</span> <span class="o">=</span> <span class="nc">List</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="s">"file1.txt"</span><span class="o">,</span> <span class="s">"file2.txt"</span><span class="o">,</span> <span class="s">"file3.txt"</span><span class="o">);</span>  
+<span class="kt">var</span> <span class="n">countOfRunningReaders</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">AtomicInteger</span><span class="o">(</span><span class="n">files</span><span class="o">.</span><span class="na">size</span><span class="o">());</span> 
+<span class="kt">var</span> <span class="n">queue</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">LinkedBlockingQueue</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;();</span>  
+
+<span class="kt">var</span> <span class="n">readers</span> <span class="o">=</span> <span class="n">files</span>  
+        <span class="o">.</span><span class="na">stream</span><span class="o">()</span>  
+        <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">file</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="nc">Reader</span><span class="o">(</span><span class="n">queue</span><span class="o">,</span> <span class="n">file</span><span class="o">,</span> <span class="n">countOfRunningReaders</span><span class="o">))</span>  
+        <span class="o">.</span><span class="na">toList</span><span class="o">();</span>  
+<span class="kt">var</span> <span class="n">counters</span> <span class="o">=</span> <span class="nc">IntStream</span><span class="o">.</span><span class="na">range</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">3</span><span class="o">)</span>  
+        <span class="o">.</span><span class="na">mapToObj</span><span class="o">(</span><span class="n">e</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="nc">Counter</span><span class="o">(</span><span class="n">queue</span><span class="o">,</span> <span class="n">countOfRunningReaders</span><span class="o">))</span>  
+        <span class="o">.</span><span class="na">toList</span><span class="o">();</span>  
+  
+<span class="kt">var</span> <span class="n">threadPool</span> <span class="o">=</span> <span class="nc">Executors</span><span class="o">.</span><span class="na">newFixedThreadPool</span><span class="o">(</span><span class="n">readers</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">+</span> <span class="n">counters</span><span class="o">.</span><span class="na">size</span><span class="o">());</span>  
+<span class="n">threadPool</span><span class="o">.</span><span class="na">invokeAll</span><span class="o">(</span><span class="n">readers</span><span class="o">);</span>  
+<span class="kt">var</span> <span class="n">totalMap</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">HashMap</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">&gt;();</span>  
+<span class="k">for</span> <span class="o">(</span><span class="nc">Future</span><span class="o">&lt;</span><span class="nc">Map</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">&gt;&gt;</span> <span class="n">future</span> <span class="o">:</span> <span class="n">threadPool</span><span class="o">.</span><span class="na">invokeAll</span><span class="o">(</span><span class="n">counters</span><span class="o">))</span> <span class="o">{</span>  
+    <span class="kt">var</span> <span class="n">result</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>  
+    <span class="n">result</span><span class="o">.</span><span class="na">forEach</span><span class="o">((</span><span class="n">k</span><span class="o">,</span> <span class="n">v</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">totalMap</span><span class="o">.</span><span class="na">merge</span><span class="o">(</span><span class="n">k</span><span class="o">,</span> <span class="n">v</span><span class="o">,</span> <span class="o">(</span><span class="n">k1</span><span class="o">,</span> <span class="n">v1</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">v1</span> <span class="o">+</span> <span class="n">v</span><span class="o">));</span>  
+<span class="o">}</span>  
+  
+<span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">totalMap</span><span class="o">);</span>
+</code></pre></div></div>
+
+<h2 id="functional-programming">Functional programming</h2>
+
+<p>Last years, functional programming is getting popular. Its elements are appearing even in object-oriented programming languages. It has several key concepts:</p>
+<ol>
+  <li>Functions are first-citizen objects. They might be created, passed as arguments, returned as a result.</li>
+  <li>Functions tend to be pure functions, i.e., they don’t have side effects and deal only with data taken as parameters.</li>
+  <li>It encourages immutable values. It means if we need to change state, we have to create a new one with different values.</li>
+</ol>
+
+<p>The mentioned above information is enough for us to rewrite the program from the previous chapter in functional style.</p>
+
+<p>Alike the previous example, we need a function that reads file content.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@SneakyThrows</span>  
+<span class="kd">private</span> <span class="kd">static</span> <span class="nc">Stream</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="nf">readWords</span><span class="o">(</span><span class="nc">String</span> <span class="n">file</span><span class="o">)</span> <span class="o">{</span>  
+    <span class="k">return</span> <span class="nc">Files</span>
+			<span class="o">.</span><span class="na">lines</span><span class="o">(</span><span class="nc">Path</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">file</span><span class="o">))</span>  
+            <span class="o">.</span><span class="na">flatMap</span><span class="o">(</span><span class="n">e</span> <span class="o">-&gt;</span> <span class="nc">Arrays</span><span class="o">.</span><span class="na">stream</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">" "</span><span class="o">)));</span>  
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Then we create a <em>parallel stream</em> that performs operations in parallel. As we can see the code is more laconic and 
+readable in comparison to the previous example. Thanks to pure functions and their composition.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">var</span> <span class="n">result</span> <span class="o">=</span> <span class="nc">List</span>
+		<span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="s">"file1.txt"</span><span class="o">,</span> <span class="s">"file2.txt"</span><span class="o">,</span> <span class="s">"file3.txt"</span><span class="o">)</span>  
+        <span class="o">.</span><span class="na">parallelStream</span><span class="o">()</span>  
+        <span class="o">.</span><span class="na">flatMap</span><span class="o">(</span><span class="n">file</span> <span class="o">-&gt;</span> <span class="n">readWords</span><span class="o">(</span><span class="n">file</span><span class="o">))</span>  
+        <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">word</span> <span class="o">-&gt;</span> <span class="nc">Pair</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">word</span><span class="o">,</span> <span class="mi">1</span><span class="o">))</span>  
+        <span class="o">.</span><span class="na">collect</span><span class="o">(</span>
+			<span class="nc">Collectors</span><span class="o">.</span><span class="na">toConcurrentMap</span><span class="o">(</span>
+						        <span class="nl">Pair:</span><span class="o">:</span><span class="n">getLeft</span><span class="o">,</span> 
+						        <span class="nl">Pair:</span><span class="o">:</span><span class="n">getRight</span><span class="o">,</span> 
+						        <span class="nl">Integer:</span><span class="o">:</span><span class="n">sum</span><span class="o">)</span>
+		<span class="o">);</span>
+</code></pre></div></div>
+
+<h2 id="actors">Actors</h2>
+
+<p>Actor model is another way of working concurrency. An actor stands for an operation. Each operation is performed by single thread associated to 
+the operation. This fact lets us not think about synchronization between threads, because code looks like a one-threaded code. 
+Actors communicate each other by sending events. An event contains input data for another actor. All sent events are added to an actor queue and handled one by one.
+The diagram below depicts how our Word Counter program works:</p>
+
+<p><img src="/assets/img/3-concurrency-models.png" alt="actor model" /></p>
+
+<p><strong>File Reader</strong> actor receives events that contain file names and then sends events to <strong>Line Splitter</strong>. Events contain only 
+single line. According to the name, the actor splits lines and sends events. Each event involves a word. 
+When <strong>Words Counter</strong> actor receives the event, it changes internal state to keep current number of words.</p>
+
+<p>Also, worth to mention, with the actor model we can create distributed programs easily. Events might be sent over the network as well as within one host.</p>
+
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h6 class="mb-3 fs-5">Related posts</h6>
+
+        <div class="row g-3">
+            
+            <div class="col-12 col-md-4">
+                <a href="/is-three-tier-architecture-anti-pattern.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Is 3-tier Architecture anti-pattern?
+                        </div>
+                        <div class="small text-muted">
+                            Oct 24, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/garbage-collectors-in-java.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Garbage Collectors in JVM-based languages
+                        </div>
+                        <div class="small text-muted">
+                            Oct 16, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-expectancy-visualization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life expectancy visualization
+                        </div>
+                        <div class="small text-muted">
+                            Nov 26, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-behind-proxy.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life behind proxy
+                        </div>
+                        <div class="small text-muted">
+                            Oct 02, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/reactive-spring-video.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Reactive spring [ru]
+                        </div>
+                        <div class="small text-muted">
+                            Jan 12, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/shutdown-java-app-gracefully.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            How to stop java application gracefully
+                        </div>
+                        <div class="small text-muted">
+                            Oct 26, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/tf-idf-with-hadoop-streaming.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            TF-IDF with Hadoop Streaming
+                        </div>
+                        <div class="small text-muted">
+                            Jul 29, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/java-compile-optimization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Not evident JIT optimizations
+                        </div>
+                        <div class="small text-muted">
+                            Jun 11, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/cpu-optimizations.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            CPU optimizations
+                        </div>
+                        <div class="small text-muted">
+                            May 15, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/getting-started-with-selenide.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Getting started with Selenide
+                        </div>
+                        <div class="small text-muted">
+                            Apr 05, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<footer class="border-top mt-3">
+    <div class="container py-4 text-center">
+        <a href="/" class="fs-5 text-decoration-none text-reset d-block mb-1">
+            © 2026 Artem Konovalov
+        </a>
+
+        <div class="text-muted">
+            This website is a personal blog. Mainly there are
+posts about java, but you can find ones on other topics.
+
+        </div>
+    </div>
+</footer>
+
+
+    </body>
+</html>

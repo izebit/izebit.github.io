@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+    <head>
+    <meta charset="utf-8">
+    <meta property="og:locale" content="en_US">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>CPU optimizations | Artem Konovalov – Software Engineer</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="CPU optimizations" />
+<meta name="author" content="Artem Konovalov" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The goal of this article is to cover some cpu optimizations from java developer’s view. We will talk about:" />
+<meta property="og:description" content="The goal of this article is to cover some cpu optimizations from java developer’s view. We will talk about:" />
+<link rel="canonical" href="https://izebit.ru/cpu-optimizations.html" />
+<meta property="og:url" content="https://izebit.ru/cpu-optimizations.html" />
+<meta property="og:site_name" content="Artem Konovalov – Software Engineer" />
+<meta property="og:image" content="https://izebit.ru/assets/img/instruction_pipelining.png" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-05-15T00:00:00-03:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="https://izebit.ru/assets/img/instruction_pipelining.png" />
+<meta property="twitter:title" content="CPU optimizations" />
+<meta name="google-site-verification" content="MGhCSoTWiTCeUdZ_2tNyZZ5dmg8Yn18pjFuo9HhksIw" />
+<meta name="yandex-verification" content="34c428376cb827b4" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Artem Konovalov"},"dateModified":"2020-05-15T00:00:00-03:00","datePublished":"2020-05-15T00:00:00-03:00","description":"The goal of this article is to cover some cpu optimizations from java developer’s view. We will talk about:","headline":"CPU optimizations","image":"https://izebit.ru/assets/img/instruction_pipelining.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://izebit.ru/cpu-optimizations.html"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://izebit.ru/assets/logos/photos/main-thumbnail.jpg"},"name":"Artem Konovalov"},"url":"https://izebit.ru/cpu-optimizations.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <link rel="stylesheet" href="/assets/css/syntax.css">
+    
+        <link rel="stylesheet" href="/assets/css/content.css">
+    
+
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon_icons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon_icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/logos/favicon_icons/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/logos/favicon_icons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="144x144" href="/assets/logos/favicon_icons/favicon-144x144.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/logos/favicon_icons/apple-touch-icon.png">
+
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"></script>
+
+    <script type="text/javascript" id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script><!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-00VK83F1ZX"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-00VK83F1ZX');
+</script></head>
+
+
+    <body>
+
+    <div class="container content pb-5 pt-5 pb-md-4">
+
+    <div class="row">
+      <h1>CPU optimizations</h1>
+      
+
+
+
+
+<div class="pb-5 pt-md-3 pt-1 pb-md-4" >
+   📅 15 May 2020 🕑 9 min  read
+</div>
+
+
+        <div class="fs-5">
+            <p>The goal of this article is to cover some cpu optimizations from java developer’s view.  We will talk about:</p>
+
+<ul>
+  <li>Branch prediction</li>
+  <li>Cache levels</li>
+  <li>False sharing</li>
+  <li>Prefetching</li>
+  <li>Loop unrolling</li>
+</ul>
+
+<h3 id="branch-prediction">Branch prediction</h3>
+
+<p>Let’s look at the next code:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kd">static</span> <span class="kt">int</span> <span class="nf">countOfElementsLessThen</span><span class="o">(</span><span class="kd">final</span> <span class="kt">int</span> <span class="n">value</span><span class="o">,</span> <span class="kd">final</span> <span class="kt">int</span><span class="o">[]</span> <span class="n">array</span><span class="o">){</span>
+    <span class="kt">int</span> <span class="n">result</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span>
+    <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">anArray</span> <span class="o">:</span> <span class="n">array</span><span class="o">)</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">anArray</span> <span class="o">&lt;</span> <span class="n">value</span><span class="o">)</span>
+            <span class="n">result</span><span class="o">++;</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>The method looks pretty good and at the first sight, there is nothing to worry about. Yet this point is delusive.</p>
+
+<p>We can estimate the average time taken for invocation the method
+(for this purpose <a href="https://openjdk.java.net/projects/code-tools/jmh/" rel="nofollow">JMH benchmark</a> is used). Let’s take an array that
+contains numbers. Yet in the first case, the array is unordered and in the second one, the array is sorted.
+Surprisingly, the results of our estimations are different significantly.</p>
+
+<p><img src="/assets/img/branch-prediction-results.png" alt="branch prediction" /></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Benchmark</th>
+      <th style="text-align: center">Mode</th>
+      <th style="text-align: center">Count</th>
+      <th style="text-align: center">Score</th>
+      <th style="text-align: center">Error</th>
+      <th style="text-align: center">Units</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>sorted array</td>
+      <td style="text-align: center">avgt</td>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">0.631</td>
+      <td style="text-align: center">± 0.035</td>
+      <td style="text-align: center">ms/op</td>
+    </tr>
+    <tr>
+      <td>unsorted array</td>
+      <td style="text-align: center">avgt</td>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">3.957</td>
+      <td style="text-align: center">± 0.142</td>
+      <td style="text-align: center">ms/op</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>As we can see, type of input array matters. The thing is modern cpu executes instructions not sequentially. They do it
+with so-called <a href="https://en.wikipedia.org/wiki/Instruction_pipelining" rel="nofollow">Instruction pipelining</a>. Thus, an instruction goes
+through several stages and, as the rule, different instructions take place on different stages at the same time.</p>
+
+<p>The picture below helps understand how it works more clearly.</p>
+
+<p><img src="/assets/img/instruction_pipelining.png" alt="instruction pipelining" /></p>
+
+<p>However, the workflow of execution the method <code class="language-plaintext highlighter-rouge">countOfElementsLessThen</code> does not let use the instruction pipelining
+effectively. Each command needs the result of the execution the previous instruction in order to figure out what the
+instruction will be executed next. It is slow and there is an optimization for this case . It is called <em>branch
+prediction</em>. The point of it is trying to predict in which way the workflow will go next time and executing it. At the
+moment, when CPU has all necessary information to check which branch of the workflow is right. There are two possible
+scenarios. The first one is CPU prediction is incorrect, so CPU rollbacks the execution result and execute the
+instructions of the correct branch. The second scenario is the prediction is right, so CPU just uses the current
+execution result.</p>
+
+<p>I suppose, CPUs predictions are not too sophisticated. In case with the method <code class="language-plaintext highlighter-rouge">countOfElementsLessThen</code>, CPU decides to
+execute instructions in <em>if block</em> based on statistical measures about previous executions. By this way, all instructions are
+executed sequentially. At some loop iteration when a current number of array is bigger than a parameter <code class="language-plaintext highlighter-rouge">value</code>,
+prediction can be changed. This explanation is quite naive and simplified.</p>
+
+<h3 id="cache-levels">Cache levels</h3>
+
+<p>CPU is very performance, and the difference between time to access to RAM memory and CPU registers is enormous. The picture
+below shows it:</p>
+
+<p><img src="/assets/img/latency.png" alt="CPU latency" /></p>
+
+<p>In order to smooth the difference, CPU has several cache levels. As the rule, there are 3 levels: the first level cache,
+the second level cache and the third level cache. Each level has different capacity and access latency. For sure, it can
+range from a manufacturer and platform. For example, my laptop has the next configuration:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Cache level</th>
+      <th>Capacity</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>First level</td>
+      <td>256KB</td>
+    </tr>
+    <tr>
+      <td>Second level</td>
+      <td>1MB</td>
+    </tr>
+    <tr>
+      <td>Third level</td>
+      <td>6MB</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Also, it should be noted that each CPU core has the first and the second level caches, but the third level cache is only
+one for all cores.</p>
+
+<p>I don’t want to show a code due to it is quite cumbersome. If you wish to check it, it
+is <a href="https://github.com/izebit/cpu-optimizations/blob/master/src/ru/izebit/cpu_optimizations/CpuCacheLevelBenchmark.java" rel="nofollow">here</a>
+The results I have got is below:</p>
+
+<p><img src="/assets/img/cache-levels-results.png" alt="CPU cache levels" /></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Benchmark</th>
+      <th style="text-align: center">Mode</th>
+      <th style="text-align: center">Count</th>
+      <th style="text-align: center">Score</th>
+      <th style="text-align: center">Error</th>
+      <th style="text-align: center">Units</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>CpuCacheLevelBenchmark.firstCacheLevel</td>
+      <td style="text-align: center">ss</td>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">12.528</td>
+      <td style="text-align: center">± 1.804</td>
+      <td style="text-align: center">ms/op</td>
+    </tr>
+    <tr>
+      <td>CpuCacheLevelBenchmark.secondCacheLevel</td>
+      <td style="text-align: center">ss</td>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">15.938</td>
+      <td style="text-align: center">± 1.361</td>
+      <td style="text-align: center">ms/op</td>
+    </tr>
+    <tr>
+      <td>CpuCacheLevelBenchmark.thirdCacheLevel</td>
+      <td style="text-align: center">ss</td>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">21.886</td>
+      <td style="text-align: center">± 6.798</td>
+      <td style="text-align: center">ms/op</td>
+    </tr>
+    <tr>
+      <td>CpuCacheLevelBenchmark.ramCacheLevel</td>
+      <td style="text-align: center">ss</td>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">49.141</td>
+      <td style="text-align: center">± 11.880</td>
+      <td style="text-align: center">ms/op</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The tendency is clear - the higher cache level, the more latency we get.</p>
+
+<h3 id="false-sharing">False sharing</h3>
+
+<p>First of all, I would like to say that it is not an optimization. False sharing is an effect that can affect your
+program performance significantly. To some extends, it follows from the previous optimization. <br />
+All data take place in caches in form of <em>cache lines</em>. Sometimes, we can face the situation where we are extremely
+unlucky and one cache line contains non-related data. Different threads update the data and CPU needs to sync caches of
+different cores.</p>
+
+<p>To make the explanation clear, suppose there is an object:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">Tuple</span> <span class="n">unoptimizedTuple</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Tuple</span><span class="o">(){</span>
+        <span class="kd">private</span> <span class="kd">volatile</span> <span class="kt">int</span> <span class="n">firstValue</span><span class="o">;</span>
+        <span class="kd">private</span> <span class="kd">volatile</span> <span class="kt">int</span> <span class="n">secondValue</span><span class="o">;</span>
+        <span class="c1">//other methods</span>
+    <span class="o">};</span>
+</code></pre></div></div>
+
+<p>In case, if one tread updates field <code class="language-plaintext highlighter-rouge">firstValue</code> and another one updates field <code class="language-plaintext highlighter-rouge">secondValue</code> of the same object, we can
+observe the false sharing effect. To avoid it, we can align an object size of the object with respect to cache lines.
+After it, the fields take place in different cache lines. There is one of possible solutions:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">Tuple</span> <span class="n">optimizedTuple</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Tuple</span><span class="o">(){</span>
+        <span class="kd">private</span> <span class="kd">volatile</span> <span class="kt">int</span> <span class="n">firstValue</span><span class="o">;</span>
+        <span class="c1">//non-used fields for aligning</span>
+        <span class="kd">private</span> <span class="kt">long</span> <span class="n">p1</span><span class="o">,</span><span class="n">p2</span><span class="o">,</span><span class="n">p3</span><span class="o">,</span><span class="n">p4</span><span class="o">,</span><span class="n">p5</span><span class="o">,</span><span class="n">p6</span><span class="o">,</span><span class="n">p7</span><span class="o">,</span><span class="n">p8</span><span class="o">;</span>
+        <span class="kd">private</span> <span class="kd">volatile</span> <span class="kt">int</span> <span class="n">secondValue</span><span class="o">;</span>
+        <span class="c1">//other</span>
+    <span class="o">};</span>
+</code></pre></div></div>
+
+<p>Let’s compare the difference:</p>
+
+<p><img src="/assets/img/cache-lines-results.png" alt="cache lines" /></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Benchmark</th>
+      <th style="text-align: center">Mode</th>
+      <th style="text-align: center">Count</th>
+      <th style="text-align: center">Score</th>
+      <th style="text-align: center">Error</th>
+      <th style="text-align: center">Units</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>FalseSharingBenchmark.invokeWithOptimization</td>
+      <td style="text-align: center">ss</td>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">62.584</td>
+      <td style="text-align: center">±6.625</td>
+      <td style="text-align: center">ms/op</td>
+    </tr>
+    <tr>
+      <td>FalseSharingBenchmark.invokeWitoutOptimization</td>
+      <td style="text-align: center">ss</td>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">289.808</td>
+      <td style="text-align: center">±26.294</td>
+      <td style="text-align: center">ms/op</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="prefetching">Prefetching</h3>
+
+<p>As I said early, CPU uses cache to minimize the latency of access to RAM. Initially, CPU tries to get data from the
+first level cache and in case if the data is absent, CPU tries to do the same with higher level caches. Eventually, if
+data is not found in the caches (<em>cache miss</em>), CPU loads it from RAM. Obviously, the process of fetching data from
+caches and especially RAM is not fast. In order to avoid it, CPU uses
+<em>prefetching</em>.</p>
+
+<p>The logic of the work is pretty simple. The data that is closed to used data is highly likely to be required coming
+soon. Therefore, CPU should care about existence of this data in a cache.</p>
+
+<p>We can observe the effect of the optimization when we use a linked and array list. An array is allocated sequentially in
+a memory and there is no problem for CPU to detect the next memory segment for loading. However, prefetching does not
+work with linked lists 😕. Thus, each node of linked list refers to an arbitrary segment of memory.</p>
+
+<p>The graph and table depict the difference:</p>
+
+<p><img src="/assets/img/prefetching-results.png" alt="prefetching" /></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Benchmark</th>
+      <th style="text-align: center">Mode</th>
+      <th style="text-align: center">Count</th>
+      <th style="text-align: center">Score</th>
+      <th style="text-align: center">Error</th>
+      <th style="text-align: center">Units</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>PrefetchingBenchmark.invokeWithOptimization</td>
+      <td style="text-align: center">avgt</td>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">5.570</td>
+      <td style="text-align: center">± 0.229</td>
+      <td style="text-align: center">ms/op</td>
+    </tr>
+    <tr>
+      <td>PrefetchingBenchmark.invokeWithoutOptimization</td>
+      <td style="text-align: center">avgt</td>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">8.341</td>
+      <td style="text-align: center">± 0.206</td>
+      <td style="text-align: center">ms/op</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="loop-unrolling">Loop unrolling</h3>
+
+<p>The last CPU optimization that we are talking about in this article is <em>loop unrolling</em>. The essence of it is quite
+simple. The modern CPUs can
+apply <a href="https://software.intel.com/content/www/us/en/develop/articles/vectorization-a-key-tool-to-improve-performance-on-modern-CPUs.html" rel="nofollow">vectorization techniques</a>
+to improve performance. If CPU supports it, it has extended registers. For example, CPU that does not, has registers
+with 8 or 32 bit capacity, but CPU that does, has registers with 128 or 256 bit. Thus, the last one can store a set of
+data and work with them like it is one value at once.</p>
+
+<p>Let’s look at the code:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+<span class="k">for</span> <span class="o">(</span><span class="kt">long</span> <span class="n">v</span> <span class="o">:</span> <span class="n">array</span><span class="o">)</span>
+    <span class="n">result</span> <span class="o">+=</span> <span class="n">v</span>
+</code></pre></div></div>
+
+<p>The code is quite trivial. It sums up all values of an array with odd size (I set to 1 000 001). In my case, CPU doesn’t use vectorization instructions, so
+we can help it by slightly rewrite the code.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+<span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">array</span><span class="o">.</span><span class="na">length</span> <span class="o">-</span> <span class="mi">1</span><span class="o">;</span> <span class="n">i</span> <span class="o">+=</span> <span class="mi">4</span><span class="o">)</span>
+    <span class="n">result</span> <span class="o">+=</span> <span class="o">(</span>
+        <span class="n">array</span><span class="o">[</span><span class="n">i</span><span class="o">]</span>
+        <span class="o">+</span> <span class="n">array</span><span class="o">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="o">]</span>
+        <span class="o">+</span> <span class="n">array</span><span class="o">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="o">]</span>
+        <span class="o">+</span> <span class="n">array</span><span class="o">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">3</span><span class="o">]</span>
+        <span class="o">);</span>
+
+<span class="n">result</span> <span class="o">+=</span> <span class="n">array</span><span class="o">[</span><span class="n">array</span><span class="o">.</span><span class="na">length</span> <span class="o">-</span> <span class="mi">1</span><span class="o">];</span>
+</code></pre></div></div>
+
+<p>After changes, CPU applies vectorization instructions. The results prove our suggestions:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Benchmark</th>
+      <th style="text-align: center">Mode</th>
+      <th style="text-align: center">Cnt</th>
+      <th style="text-align: center">Score</th>
+      <th style="text-align: center">Error</th>
+      <th style="text-align: center">Units</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>LoopUnrollingBenchmark.invokeWithOptimization</td>
+      <td style="text-align: center">avgt</td>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">0.390</td>
+      <td style="text-align: center">± 0.021</td>
+      <td style="text-align: center">ms/op</td>
+    </tr>
+    <tr>
+      <td>LoopUnrollingBenchmark.invokeWithoutOptimization</td>
+      <td style="text-align: center">avgt</td>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">0.440</td>
+      <td style="text-align: center">± 0.038</td>
+      <td style="text-align: center">ms/op</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>That’s all. Thank you for reading. I hope the article will come in handy.</p>
+
+<p><a href="https://github.com/izebit/CPU-optimizations" rel="nofollow">
+    <img src="/assets/img/github-icon.svg" width="100" height="100" />
+</a></p>
+
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h6 class="mb-3 fs-5">Related posts</h6>
+
+        <div class="row g-3">
+            
+            <div class="col-12 col-md-4">
+                <a href="/concurrency-models.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            3 Concurrency Models
+                        </div>
+                        <div class="small text-muted">
+                            Aug 11, 2024
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/is-three-tier-architecture-anti-pattern.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Is 3-tier Architecture anti-pattern?
+                        </div>
+                        <div class="small text-muted">
+                            Oct 24, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/garbage-collectors-in-java.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Garbage Collectors in JVM-based languages
+                        </div>
+                        <div class="small text-muted">
+                            Oct 16, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-expectancy-visualization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life expectancy visualization
+                        </div>
+                        <div class="small text-muted">
+                            Nov 26, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-behind-proxy.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life behind proxy
+                        </div>
+                        <div class="small text-muted">
+                            Oct 02, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/reactive-spring-video.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Reactive spring [ru]
+                        </div>
+                        <div class="small text-muted">
+                            Jan 12, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/shutdown-java-app-gracefully.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            How to stop java application gracefully
+                        </div>
+                        <div class="small text-muted">
+                            Oct 26, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/tf-idf-with-hadoop-streaming.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            TF-IDF with Hadoop Streaming
+                        </div>
+                        <div class="small text-muted">
+                            Jul 29, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/java-compile-optimization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Not evident JIT optimizations
+                        </div>
+                        <div class="small text-muted">
+                            Jun 11, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/getting-started-with-selenide.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Getting started with Selenide
+                        </div>
+                        <div class="small text-muted">
+                            Apr 05, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<footer class="border-top mt-3">
+    <div class="container py-4 text-center">
+        <a href="/" class="fs-5 text-decoration-none text-reset d-block mb-1">
+            © 2026 Artem Konovalov
+        </a>
+
+        <div class="text-muted">
+            This website is a personal blog. Mainly there are
+posts about java, but you can find ones on other topics.
+
+        </div>
+    </div>
+</footer>
+
+
+    </body>
+</html>

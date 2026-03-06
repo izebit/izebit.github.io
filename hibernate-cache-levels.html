@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+    <head>
+    <meta charset="utf-8">
+    <meta property="og:locale" content="en_US">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Caching of hibernate | Artem Konovalov – Software Engineer</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Caching of hibernate" />
+<meta name="author" content="Artem Konovalov" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Recently, I faced a task related to caching queries in Hibernate framework. I would like to tell about various types of caches in hibernate and how to use and tune them." />
+<meta property="og:description" content="Recently, I faced a task related to caching queries in Hibernate framework. I would like to tell about various types of caches in hibernate and how to use and tune them." />
+<link rel="canonical" href="https://izebit.ru/hibernate-cache-levels.html" />
+<meta property="og:url" content="https://izebit.ru/hibernate-cache-levels.html" />
+<meta property="og:site_name" content="Artem Konovalov – Software Engineer" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-03-05T00:00:00-03:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Caching of hibernate" />
+<meta name="google-site-verification" content="MGhCSoTWiTCeUdZ_2tNyZZ5dmg8Yn18pjFuo9HhksIw" />
+<meta name="yandex-verification" content="34c428376cb827b4" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Artem Konovalov"},"dateModified":"2019-03-05T00:00:00-03:00","datePublished":"2019-03-05T00:00:00-03:00","description":"Recently, I faced a task related to caching queries in Hibernate framework. I would like to tell about various types of caches in hibernate and how to use and tune them.","headline":"Caching of hibernate","mainEntityOfPage":{"@type":"WebPage","@id":"https://izebit.ru/hibernate-cache-levels.html"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://izebit.ru/assets/logos/photos/main-thumbnail.jpg"},"name":"Artem Konovalov"},"url":"https://izebit.ru/hibernate-cache-levels.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <link rel="stylesheet" href="/assets/css/syntax.css">
+    
+        <link rel="stylesheet" href="/assets/css/content.css">
+    
+
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon_icons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon_icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/logos/favicon_icons/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/logos/favicon_icons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="144x144" href="/assets/logos/favicon_icons/favicon-144x144.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/logos/favicon_icons/apple-touch-icon.png">
+
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"></script>
+
+    <script type="text/javascript" id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script><!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-00VK83F1ZX"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-00VK83F1ZX');
+</script></head>
+
+
+    <body>
+
+    <div class="container content pb-5 pt-5 pb-md-4">
+
+    <div class="row">
+      <h1>Caching of hibernate</h1>
+      
+
+
+
+
+<div class="pb-5 pt-md-3 pt-1 pb-md-4" >
+   📅 05 Mar 2019 🕑 4 min  read
+</div>
+
+
+        <div class="fs-5">
+            <p>Recently, I faced a task related to caching queries in <a href="https://hibernate.org/" rel="nofollow">Hibernate framework</a>. 
+I would like to tell about various types of caches in hibernate and how to use and tune them.</p>
+
+<p>First, there are tree cache levels:</p>
+<ul>
+  <li>session level cache;</li>
+  <li>second level cache;</li>
+  <li>query level cache.</li>
+</ul>
+
+<h3 id="session-level-cache">Session level cache</h3>
+<p>According to its name, it is used during one session to database. Each session has own cache and when a session is closed, 
+a cache is cleaned up. To be more clear, I list an example below:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">Session</span> <span class="n">session</span> <span class="o">=</span> <span class="nc">HibernateUtil</span><span class="o">.</span><span class="na">getSessionFactory</span><span class="o">().</span><span class="na">openSession</span><span class="o">();</span>
+<span class="k">try</span> <span class="o">{</span>
+    <span class="nc">Criteria</span> <span class="n">criteria</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">createCriteria</span><span class="o">(</span><span class="nc">Account</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">criteria</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="nc">Restrictions</span><span class="o">.</span><span class="na">eq</span><span class="o">(</span><span class="s">"id"</span><span class="o">,</span> <span class="n">id</span><span class="o">));</span>
+    <span class="nc">Account</span> <span class="n">firstAccount</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Account</span><span class="o">)</span> <span class="n">criteria</span><span class="o">.</span><span class="na">uniqueResult</span><span class="o">();</span>
+    <span class="nc">Account</span> <span class="n">secondAccount</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Account</span><span class="o">)</span> <span class="n">criteria</span><span class="o">.</span><span class="na">uniqueResult</span><span class="o">();</span>
+<span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+    <span class="n">session</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+<p>In this case, we see only query to a database. The second call <code class="language-plaintext highlighter-rouge">criteria.uniqueResult()</code> returns a value from a cache.
+The session cache level is enabled by default, and you have to do nothing to use it in contrast to other ones.<br />
+Hibernate framework does not provide implementations for second cache level and query cache level. In order to use them,
+you have to add some third-party libraries to your project.</p>
+
+<h3 id="the-second-level-cache">The second level cache</h3>
+
+<p>This type of cache, or it is also so called <em>sessionFactory</em> affects all sessions.
+By default, it is disabled. As I said before, you should add some implementation of the cache. 
+I use <a href="http://www.ehcache.org/" rel="nofollow">ehcache</a> but you can use whatever you want. It is worth to mention, 
+the configuration in the article is tested with hibernate 4.0.</p>
+
+<p>I add some dependencies to my <em>pom.xml</em>:</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.hibernate<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>hibernate-core<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>${hibernate.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.hibernate<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>hibernate-ehcache<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>${hibernate.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>net.sf.ehcache<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>ehcache-core<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>2.6.11<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div></div>
+
+<p>and also add some parameters to hibernate configuration:</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"hibernate.cache.use_second_level_cache"</span><span class="nt">&gt;</span>
+  true
+<span class="nt">&lt;/property&gt;</span>
+<span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"hibernate.cache.region.factory_class"</span><span class="nt">&gt;</span>
+  org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
+<span class="nt">&lt;/property&gt;</span>
+<span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"net.sf.ehcache.configurationResourceName"</span><span class="nt">&gt;</span>
+  ehcache.xml
+<span class="nt">&lt;/property&gt;</span>
+</code></pre></div></div>
+
+<p>To tune <em>Ehcache</em>, you should create a file <em>ehcache.xml</em> with parameters:</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;ehcache&gt;</span>
+  <span class="nt">&lt;diskStore</span> <span class="na">path=</span><span class="s">"java.io.tmpdir"</span><span class="nt">/&gt;</span>
+  <span class="nt">&lt;defaultCache</span>
+            <span class="na">maxElementsInMemory=</span><span class="s">"100000"</span>
+            <span class="na">eternal=</span><span class="s">"false"</span>
+            <span class="na">statistics=</span><span class="s">"true"</span>
+            <span class="na">timeToIdleSeconds=</span><span class="s">"120"</span>
+            <span class="na">timeToLiveSeconds=</span><span class="s">"120"</span>
+            <span class="na">overflowToDisk=</span><span class="s">"true"</span>
+            <span class="na">diskPersistent=</span><span class="s">"false"</span>
+            <span class="na">diskSpoolBufferSizeMB=</span><span class="s">"500"</span>
+            <span class="na">diskExpiryThreadIntervalSeconds=</span><span class="s">"120"</span>
+            <span class="na">memoryStoreEvictionPolicy=</span><span class="s">"LRU"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/ehcache&gt;</span>
+</code></pre></div></div>
+<p>To avoid misunderstanding, I should to give some remarks.</p>
+
+<ul>
+  <li>if <em>eternal</em> option is true, objects will never be removed from a cache.</li>
+  <li><em>timeToLiveSeconds</em> - how many seconds, an object lives in a cache before removing from it.</li>
+  <li><em>diskStore</em> option contains <em>path</em> parameter that should be set to a path, where you want objects will be saved. In my case, it is a temporary directory.</li>
+</ul>
+
+<p>It is almost all what we have to do. The last thing is to say hibernate that which entities we want to cache.<br />
+If we set mapping via xml, add an option <code class="language-plaintext highlighter-rouge">&lt;cache usage="read-write"/&gt;</code>, but if you use annotations, you should add 
+<code class="language-plaintext highlighter-rouge">@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)</code> to an entity class.</p>
+
+<p>A <em>usage</em> parameter can have parameters:</p>
+<ul>
+  <li>when <em>read-write</em> is set, objects are updates concurrently according to a transaction level.</li>
+  <li><em>nonstrict-read-write</em> is supposed to update object in cache without blocking in multithreading mode. 
+However, using this mode, objects retrieved from cache might be outdated. This mode is a trade-off between performance and consistency.</li>
+  <li><em>read-only</em> can be useful for object that never changed.</li>
+</ul>
+
+<h3 id="query-level-cache">Query level cache</h3>
+
+<p>To use the query level cache, you should add an implementation to your project as well. <em>Ehcache</em> is an appropriate one and 
+the configuration from previous section is legal for a query level cache. 
+Also, you should add <code class="language-plaintext highlighter-rouge">&lt;property name="hibernate.cache.use_query_cache"&gt;true&lt;/property&gt;</code> to your hibernate configuration and that is all.
+Each time when you want queries to be cached, you should just call <code class="language-plaintext highlighter-rouge">setCacheable(true)</code> for them.</p>
+
+
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h6 class="mb-3 fs-5">Related posts</h6>
+
+        <div class="row g-3">
+            
+            <div class="col-12 col-md-4">
+                <a href="/concurrency-models.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            3 Concurrency Models
+                        </div>
+                        <div class="small text-muted">
+                            Aug 11, 2024
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/is-three-tier-architecture-anti-pattern.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Is 3-tier Architecture anti-pattern?
+                        </div>
+                        <div class="small text-muted">
+                            Oct 24, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/garbage-collectors-in-java.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Garbage Collectors in JVM-based languages
+                        </div>
+                        <div class="small text-muted">
+                            Oct 16, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-expectancy-visualization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life expectancy visualization
+                        </div>
+                        <div class="small text-muted">
+                            Nov 26, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-behind-proxy.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life behind proxy
+                        </div>
+                        <div class="small text-muted">
+                            Oct 02, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/reactive-spring-video.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Reactive spring [ru]
+                        </div>
+                        <div class="small text-muted">
+                            Jan 12, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/shutdown-java-app-gracefully.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            How to stop java application gracefully
+                        </div>
+                        <div class="small text-muted">
+                            Oct 26, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/tf-idf-with-hadoop-streaming.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            TF-IDF with Hadoop Streaming
+                        </div>
+                        <div class="small text-muted">
+                            Jul 29, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/java-compile-optimization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Not evident JIT optimizations
+                        </div>
+                        <div class="small text-muted">
+                            Jun 11, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/cpu-optimizations.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            CPU optimizations
+                        </div>
+                        <div class="small text-muted">
+                            May 15, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<footer class="border-top mt-3">
+    <div class="container py-4 text-center">
+        <a href="/" class="fs-5 text-decoration-none text-reset d-block mb-1">
+            © 2026 Artem Konovalov
+        </a>
+
+        <div class="text-muted">
+            This website is a personal blog. Mainly there are
+posts about java, but you can find ones on other topics.
+
+        </div>
+    </div>
+</footer>
+
+
+    </body>
+</html>

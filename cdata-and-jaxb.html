@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+    <head>
+    <meta charset="utf-8">
+    <meta property="og:locale" content="en_US">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Friendship between CDATA and JAXB | Artem Konovalov – Software Engineer</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Friendship between CDATA and JAXB" />
+<meta name="author" content="Artem Konovalov" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Hello, today we are talking about JAXB. This technology lets us serialize java objects into xml. It is pretty old one and exists for long time since java ee . Its API is simple and easy to use, however there are some nuances as somewhere else. They occur each time when you want to do something nontrivial. In my case, I have to put some fields into CDATA blocks and leave their content without any changes." />
+<meta property="og:description" content="Hello, today we are talking about JAXB. This technology lets us serialize java objects into xml. It is pretty old one and exists for long time since java ee . Its API is simple and easy to use, however there are some nuances as somewhere else. They occur each time when you want to do something nontrivial. In my case, I have to put some fields into CDATA blocks and leave their content without any changes." />
+<link rel="canonical" href="https://izebit.ru/cdata-and-jaxb.html" />
+<meta property="og:url" content="https://izebit.ru/cdata-and-jaxb.html" />
+<meta property="og:site_name" content="Artem Konovalov – Software Engineer" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2018-01-21T00:00:00-02:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Friendship between CDATA and JAXB" />
+<meta name="google-site-verification" content="MGhCSoTWiTCeUdZ_2tNyZZ5dmg8Yn18pjFuo9HhksIw" />
+<meta name="yandex-verification" content="34c428376cb827b4" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Artem Konovalov"},"dateModified":"2018-01-21T00:00:00-02:00","datePublished":"2018-01-21T00:00:00-02:00","description":"Hello, today we are talking about JAXB. This technology lets us serialize java objects into xml. It is pretty old one and exists for long time since java ee . Its API is simple and easy to use, however there are some nuances as somewhere else. They occur each time when you want to do something nontrivial. In my case, I have to put some fields into CDATA blocks and leave their content without any changes.","headline":"Friendship between CDATA and JAXB","mainEntityOfPage":{"@type":"WebPage","@id":"https://izebit.ru/cdata-and-jaxb.html"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"https://izebit.ru/assets/logos/photos/main-thumbnail.jpg"},"name":"Artem Konovalov"},"url":"https://izebit.ru/cdata-and-jaxb.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+    <link rel="stylesheet" href="/assets/css/syntax.css">
+    
+        <link rel="stylesheet" href="/assets/css/content.css">
+    
+
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon_icons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon_icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/logos/favicon_icons/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/logos/favicon_icons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="144x144" href="/assets/logos/favicon_icons/favicon-144x144.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/logos/favicon_icons/apple-touch-icon.png">
+
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+            crossorigin="anonymous"></script>
+
+    <script type="text/javascript" id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script><!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-00VK83F1ZX"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-00VK83F1ZX');
+</script></head>
+
+
+    <body>
+
+    <div class="container content pb-5 pt-5 pb-md-4">
+
+    <div class="row">
+      <h1>Friendship between CDATA and JAXB</h1>
+      
+
+
+
+
+<div class="pb-5 pt-md-3 pt-1 pb-md-4" >
+   📅 21 Jan 2018 🕑 4 min  read
+</div>
+
+
+        <div class="fs-5">
+            <p>Hello, today we are talking about JAXB. This technology lets us serialize java objects into <em>xml</em>. It is pretty old one
+and exists for long time since java ee . Its API is simple and easy to use, however there are some nuances as somewhere else.
+They occur each time when you want to do something nontrivial. In my case, I have to put some fields into CDATA blocks and
+leave their content without any changes.</p>
+
+<p>There is an example below. It is a class <em>Person</em>. Just in case, all examples are written in Kotlin.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@XmlRootElement</span><span class="p">(</span><span class="n">name</span> <span class="p">=</span> <span class="s">"person"</span><span class="p">)</span>
+<span class="nd">@XmlAccessorType</span><span class="p">(</span><span class="nc">XmlAccessType</span><span class="p">.</span><span class="nc">FIELD</span><span class="p">)</span>
+<span class="kd">class</span> <span class="nc">Parent</span> <span class="p">{</span>
+    <span class="nd">@XmlJavaTypeAdapter</span><span class="p">(</span><span class="nc">CDATAAdapter</span><span class="o">::</span><span class="k">class</span><span class="p">)</span>
+    <span class="nd">@XmlElement</span><span class="p">(</span><span class="n">name</span> <span class="p">=</span> <span class="s">"name"</span><span class="p">)</span>
+    <span class="kd">var</span> <span class="py">name</span><span class="p">:</span> <span class="nc">String</span> <span class="p">=</span> <span class="s">""</span>
+    <span class="nd">@XmlElementWrapper</span><span class="p">(</span><span class="n">name</span> <span class="p">=</span> <span class="s">"children"</span><span class="p">)</span>
+    <span class="nd">@XmlElements</span><span class="p">(</span>
+            <span class="nc">XmlElement</span><span class="p">(</span><span class="n">name</span> <span class="p">=</span> <span class="s">"boy"</span><span class="p">,</span> <span class="n">type</span> <span class="p">=</span> <span class="nc">Boy</span><span class="o">::</span><span class="k">class</span><span class="p">),</span>
+            <span class="nc">XmlElement</span><span class="p">(</span><span class="n">name</span> <span class="p">=</span> <span class="s">"girl"</span><span class="p">,</span> <span class="n">type</span> <span class="p">=</span> <span class="nc">Girl</span><span class="o">::</span><span class="k">class</span><span class="p">))</span>
+    <span class="kd">var</span> <span class="py">children</span><span class="p">:</span> <span class="nc">Collection</span><span class="p">&lt;</span><span class="nc">Child</span><span class="p">&gt;</span> <span class="p">=</span> <span class="nf">emptyList</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="k">open</span> <span class="kd">class</span> <span class="nc">Child</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="py">name</span><span class="p">:</span> <span class="nc">String</span> <span class="p">=</span> <span class="s">""</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nc">Girl</span> <span class="p">:</span> <span class="nc">Child</span><span class="p">()</span>
+<span class="kd">class</span> <span class="nc">Boy</span> <span class="p">:</span> <span class="nc">Child</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>The field <em>name</em> is need to be put into a <em>CDATA</em> block. In order to do it, we add a <code class="language-plaintext highlighter-rouge">@XmlJavaTypeAdapter</code> annotation 
+and implement own <em>CDATAAdapter</em> interface on ourselves. Have a look at this implementation:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">CDATAAdapter</span> <span class="p">:</span> <span class="nc">XmlAdapter</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">,</span> <span class="nc">String</span><span class="p">&gt;()</span> <span class="p">{</span>
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">unmarshal</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nc">String</span><span class="p">?):</span> <span class="nc">String</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="p">==</span> <span class="k">null</span> <span class="p">||</span> <span class="n">value</span><span class="p">.</span><span class="nf">isBlank</span><span class="p">())</span>
+            <span class="k">return</span> <span class="s">""</span>
+        <span class="k">else</span>
+            <span class="n">value</span><span class="p">.</span><span class="nf">trim</span><span class="p">().</span><span class="nf">removePrefix</span><span class="p">(</span><span class="s">"&amp;lt![CDATA["</span><span class="p">).</span><span class="nf">removeSuffix</span><span class="p">(</span><span class="s">"]]&amp;gt"</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">marshal</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nc">String</span><span class="p">?):</span> <span class="nc">String</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">if</span> <span class="p">(</span><span class="n">value</span> <span class="p">==</span> <span class="k">null</span> <span class="p">||</span> <span class="n">value</span><span class="p">.</span><span class="nf">isBlank</span><span class="p">())</span>
+            <span class="s">""</span>
+        <span class="k">else</span>
+            <span class="s">"&amp;lt![CDATA[$value]]&amp;gt"</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>You might notice that it is not sophisticated at all - just simple manipulations with strings, and will be right. 
+The next step is say our serializator or our marshaller don’t change strings that are already changed by <em>CDATAAdapter</em>.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">private</span> <span class="kd">val</span> <span class="py">MARSHALLER</span><span class="p">:</span> <span class="nc">Marshaller</span> <span class="k">by</span> <span class="nf">lazy</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">context</span> <span class="p">=</span> <span class="nc">JAXBContext</span><span class="p">.</span><span class="nf">newInstance</span><span class="p">(</span><span class="nc">Parent</span><span class="o">::</span><span class="k">class</span><span class="p">.</span><span class="n">java</span><span class="p">)</span>
+    <span class="kd">val</span> <span class="py">marshaller</span> <span class="p">=</span> <span class="n">context</span><span class="p">.</span><span class="nf">createMarshaller</span><span class="p">()</span>
+    <span class="n">marshaller</span><span class="p">.</span><span class="nf">setProperty</span><span class="p">(</span><span class="nc">Marshaller</span><span class="p">.</span><span class="nc">JAXB_ENCODING</span><span class="p">,</span> <span class="nc">StandardCharsets</span><span class="p">.</span><span class="nc">UTF_8</span><span class="p">.</span><span class="nf">toString</span><span class="p">())</span>
+    <span class="n">marshaller</span><span class="p">.</span><span class="nf">setProperty</span><span class="p">(</span><span class="nc">Marshaller</span><span class="p">.</span><span class="nc">JAXB_FORMATTED_OUTPUT</span><span class="p">,</span> <span class="k">true</span><span class="p">)</span>
+    <span class="n">marshaller</span><span class="p">.</span><span class="nf">setProperty</span><span class="p">(</span><span class="n">com</span><span class="p">.</span><span class="n">sun</span><span class="p">.</span><span class="n">xml</span><span class="p">.</span><span class="k">internal</span><span class="p">.</span><span class="n">bind</span><span class="p">.</span><span class="n">marshaller</span><span class="p">.</span><span class="nc">CharacterEscapeHandler</span><span class="o">::</span><span class="k">class</span><span class="p">.</span><span class="n">java</span><span class="p">.</span><span class="n">canonicalName</span><span class="p">,</span>
+            <span class="nc">CharacterEscapeHandler</span> <span class="p">{</span> <span class="n">chars</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">isAttribute</span><span class="p">,</span> <span class="n">writer</span> <span class="p">-&gt;</span>
+                <span class="kd">val</span> <span class="py">value</span> <span class="p">=</span> <span class="nc">String</span><span class="p">(</span><span class="n">chars</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">).</span><span class="nf">trim</span><span class="p">()</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">value</span><span class="p">.</span><span class="nf">startsWith</span><span class="p">(</span><span class="s">"&amp;lt![CDATA["</span><span class="p">)</span> <span class="p">&amp;&amp;</span> <span class="n">value</span><span class="p">.</span><span class="nf">endsWith</span><span class="p">(</span><span class="s">"]]&amp;gt"</span><span class="p">))</span>
+                    <span class="n">writer</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="n">chars</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+                <span class="k">else</span>
+                    <span class="nc">MinimumEscapeHandler</span><span class="p">.</span><span class="n">theInstance</span><span class="p">.</span><span class="nf">escape</span><span class="p">(</span><span class="n">chars</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">isAttribute</span><span class="p">,</span> <span class="n">writer</span><span class="p">)</span>
+            <span class="p">})</span>
+
+    <span class="n">marshaller</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>If we don’t pay attention to some configurations about encoding and “pretty” formatting, we will see a parameter 
+for setting a string handler. We use our custom string handler.</p>
+
+<p>What does it do? The logic is simple. It handles strings in two different ways depend upon an input string 
+is changed by <em>CDATAAdapter</em> or not. If it is not changed, it delegates the invocation to an internal handler otherwise
+it adds <em>CDATA</em> tags to the input string.</p>
+
+<p>That’s all and now we are ready to check the work:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">val</span> <span class="py">parent</span> <span class="p">=</span> <span class="nc">Parent</span><span class="p">().</span><span class="nf">apply</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="n">name</span> <span class="p">=</span> <span class="s">"John"</span>
+        <span class="k">this</span><span class="p">.</span><span class="n">children</span> <span class="p">=</span> <span class="nf">arrayListOf</span><span class="p">(</span>
+                <span class="nc">Girl</span><span class="p">().</span><span class="nf">apply</span> <span class="p">{</span>
+                    <span class="k">this</span><span class="p">.</span><span class="n">name</span> <span class="p">=</span> <span class="s">"Margaret"</span>
+                <span class="p">},</span>
+                <span class="nc">Boy</span><span class="p">().</span><span class="nf">apply</span> <span class="p">{</span>
+                    <span class="k">this</span><span class="p">.</span><span class="n">name</span> <span class="p">=</span> <span class="s">"Steve"</span>
+                <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="p">}</span>
+ 
+<span class="nc">MARSHALLER</span><span class="p">.</span><span class="nf">marshal</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="nc">System</span><span class="p">.</span><span class="k">out</span><span class="p">)</span>
+</code></pre></div></div>
+<p>If we execute the code above, we will see the next output:</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;</span>
+<span class="nt">&lt;person&gt;</span>
+    <span class="nt">&lt;name&gt;</span><span class="cp">&lt;![CDATA[John]]&gt;</span><span class="nt">&lt;/name&gt;</span>
+    <span class="nt">&lt;children&gt;</span>
+        <span class="nt">&lt;girl&gt;</span>
+            <span class="nt">&lt;name&gt;</span>Margarette<span class="nt">&lt;/name&gt;</span>
+        <span class="nt">&lt;/girl&gt;</span>
+        <span class="nt">&lt;boy&gt;</span>
+            <span class="nt">&lt;name&gt;</span>Steve<span class="nt">&lt;/name&gt;</span>
+        <span class="nt">&lt;/boy&gt;</span>
+    <span class="nt">&lt;/children&gt;</span>
+<span class="nt">&lt;/person&gt;</span>
+</code></pre></div></div>
+
+
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h6 class="mb-3 fs-5">Related posts</h6>
+
+        <div class="row g-3">
+            
+            <div class="col-12 col-md-4">
+                <a href="/concurrency-models.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            3 Concurrency Models
+                        </div>
+                        <div class="small text-muted">
+                            Aug 11, 2024
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/is-three-tier-architecture-anti-pattern.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Is 3-tier Architecture anti-pattern?
+                        </div>
+                        <div class="small text-muted">
+                            Oct 24, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/garbage-collectors-in-java.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Garbage Collectors in JVM-based languages
+                        </div>
+                        <div class="small text-muted">
+                            Oct 16, 2023
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-expectancy-visualization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life expectancy visualization
+                        </div>
+                        <div class="small text-muted">
+                            Nov 26, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/life-behind-proxy.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Life behind proxy
+                        </div>
+                        <div class="small text-muted">
+                            Oct 02, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/reactive-spring-video.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Reactive spring [ru]
+                        </div>
+                        <div class="small text-muted">
+                            Jan 12, 2021
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/shutdown-java-app-gracefully.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            How to stop java application gracefully
+                        </div>
+                        <div class="small text-muted">
+                            Oct 26, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/tf-idf-with-hadoop-streaming.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            TF-IDF with Hadoop Streaming
+                        </div>
+                        <div class="small text-muted">
+                            Jul 29, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/java-compile-optimization.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            Not evident JIT optimizations
+                        </div>
+                        <div class="small text-muted">
+                            Jun 11, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="col-12 col-md-4">
+                <a href="/cpu-optimizations.html" class="text-decoration-none text-reset">
+                    <div class="card h-100 shadow-sm rounded-4 p-3 hover-lift">
+                        <div class="fw-semibold mb-1">
+                            CPU optimizations
+                        </div>
+                        <div class="small text-muted">
+                            May 15, 2020
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<footer class="border-top mt-3">
+    <div class="container py-4 text-center">
+        <a href="/" class="fs-5 text-decoration-none text-reset d-block mb-1">
+            © 2026 Artem Konovalov
+        </a>
+
+        <div class="text-muted">
+            This website is a personal blog. Mainly there are
+posts about java, but you can find ones on other topics.
+
+        </div>
+    </div>
+</footer>
+
+
+    </body>
+</html>
