@@ -8,7 +8,6 @@ kramdown:
 permalink: /:slug.html
 
 # Setup
-title: Artem Konovalov – Tech Enthusiast
 tagline: |
   A collection of my projects, notes, and experiments on software engineering, 
   covering programming languages, concurrent and parallel programming, 
