@@ -8,13 +8,12 @@ kramdown:
 permalink: /:slug.html
 
 # Setup
-title: Artem Konovalov – Software Engineer
+title: Artem Konovalov – Tech Enthusiast
 tagline: |
-  posts on JVM based languages, concurrent programming, 
-  functional programming and stuff
-description: |
-  This website is a personal blog. Mainly there are
-  posts about java, but you can find ones on other topics.
+  A collection of my projects, notes, and experiments on software engineering, 
+  covering programming languages, concurrent and parallel programming, 
+  functional programming, system design, and other topics I find interesting.
+description: Artem Konovalov's personal website.
 url:              https://izebit.ru
 baseurl:          /
 
