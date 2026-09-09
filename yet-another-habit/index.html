@@ -68,7 +68,16 @@ permalink: /yet-another-habit/
         position: relative;
         padding-left: 1.85rem;
         margin-bottom: .75rem;
-        font-size: 1.1rem;
+        font-size: 1.25rem;
+    }
+
+    /* Bump body copy (non-heading text) a bit larger across the whole page */
+    .content .fs-4 {
+        font-size: 1.65rem !important;
+    }
+
+    .content .fs-5 {
+        font-size: 1.4rem !important;
     }
 
     .yah-feature-list li::before {
@@ -108,11 +117,16 @@ permalink: /yet-another-habit/
     }
 
     .yah-closing {
-        font-size: 1.4rem;
+        font-size: 1.55rem;
         font-weight: 600;
         max-width: 720px;
-        margin: 0 auto;
         letter-spacing: -0.01em;
+    }
+
+    .yah-appstore-badge {
+        height: 54px;
+        width: auto;
+        flex-shrink: 0;
     }
 
     @media (max-width: 767.98px) {
@@ -135,7 +149,7 @@ permalink: /yet-another-habit/
         }
 
         .yah-closing {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
         }
     }
 </style>
@@ -183,6 +197,17 @@ permalink: /yet-another-habit/
         </div>
     </div>
 
+    <!-- A quiet interface -->
+    <div class="yah-section pt-0">
+        <img src="/assets/yet-another-habit/all.png" alt="The full list of habits in a quiet, minimal interface" class="yah-shot w-100 mb-4">
+        <div class="text-center">
+            <h2 class="fs-2">A quiet interface</h2>
+            <p class="fs-5 text-body-secondary mx-auto" style="max-width: 640px;">
+                Nothing on screen but the things you actually need to tap.
+            </p>
+        </div>
+    </div>
+
     <!-- Habits your way -->
     <div class="yah-section pt-0">
         <div class="row align-items-center g-4 g-md-5">
@@ -195,21 +220,6 @@ permalink: /yet-another-habit/
                     <li>Give each habit a name and a color.</li>
                     <li>Pick your days of the week, or just say &ldquo;three times a week&rdquo; and leave the rest to the app.</li>
                 </ul>
-            </div>
-        </div>
-    </div>
-
-    <!-- A quiet interface -->
-    <div class="yah-section pt-0">
-        <div class="row align-items-center g-4 g-md-5">
-            <div class="col-12 col-md-7">
-                <img src="/assets/yet-another-habit/all.png" alt="The full list of habits in a quiet, minimal interface" class="yah-shot w-100">
-            </div>
-            <div class="col-12 col-md-5">
-                <h2 class="fs-2">A quiet interface</h2>
-                <p class="fs-5 text-body-secondary">
-                    Nothing on screen but the things you actually need to tap.
-                </p>
             </div>
         </div>
     </div>
@@ -237,9 +247,14 @@ permalink: /yet-another-habit/
     </div>
 
     <div class="yah-section text-center pt-0">
-        <p class="yah-closing">
-            Yet Another Habit keeps you looking at today, instead of apologizing for yesterday.
-        </p>
+        <div class="yah-closing-row d-flex flex-column flex-md-row align-items-center justify-content-center gap-3 gap-md-4">
+            <p class="yah-closing mb-0">
+                Yet Another Habit keeps you looking at today, instead of apologizing for yesterday.
+            </p>
+            <a href="#">
+                <img src="/assets/yet-another-habit/apple-store.png" alt="Download on the App Store" class="yah-appstore-badge">
+            </a>
+        </div>
     </div>
 
 </div>
