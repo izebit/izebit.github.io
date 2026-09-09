@@ -1,0 +1,258 @@
+---
+layout: default
+title: "Yet Another Habit"
+description: "Missed yesterday? Doesn't matter. Yet Another Habit shows only what's due today — check it off or skip it, and start every week with a clean slate."
+permalink: /yet-another-habit/
+---
+<div class="d-flex flex-column min-vh-100 yah-landing">
+
+<style>
+    .yah-landing {
+        background: #fdfdfc;
+    }
+
+    .yah-landing .container {
+        max-width: 1040px;
+    }
+
+    .yah-hero h1 {
+        font-weight: 700;
+        letter-spacing: -0.01em;
+    }
+
+    .yah-hero .lead {
+        max-width: 640px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .yah-video-wrap {
+        max-width: 100%;
+        margin: 0 auto;
+        border-radius: 26px;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, .12);
+        border: 1px solid rgba(0, 0, 0, .06);
+    }
+
+    .yah-video-wrap video {
+        width: 100%;
+        display: block;
+    }
+
+    .yah-shot {
+        border-radius: 22px;
+        overflow: hidden;
+        border: 1px solid rgba(0, 0, 0, .06);
+        box-shadow: 0 14px 34px rgba(0, 0, 0, .10);
+    }
+
+    .yah-section {
+        padding-top: 4rem;
+        padding-bottom: 4rem;
+    }
+
+    .yah-section h2 {
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        margin-bottom: 1rem;
+    }
+
+    .yah-feature-list {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+
+    .yah-feature-list li {
+        position: relative;
+        padding-left: 1.85rem;
+        margin-bottom: .75rem;
+        font-size: 1.1rem;
+    }
+
+    .yah-feature-list li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: .5rem;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #e2574c;
+    }
+
+    .yah-plus {
+        background: #000;
+        color: #f5f5f5;
+        border-radius: 28px;
+        padding: 3rem 1.5rem 0;
+        overflow: hidden;
+    }
+
+    .yah-plus-shot-col {
+        align-self: flex-end;
+    }
+
+    .yah-plus-copy {
+        padding-bottom: 3rem;
+        padding-left: 5rem;
+    }
+
+    .yah-plus h2 {
+        color: #e2574c;
+    }
+
+    .yah-plus .yah-feature-list li::before {
+        background: #e2574c;
+    }
+
+    .yah-closing {
+        font-size: 1.4rem;
+        font-weight: 600;
+        max-width: 720px;
+        margin: 0 auto;
+        letter-spacing: -0.01em;
+    }
+
+    @media (max-width: 767.98px) {
+        .yah-hero h1 {
+            font-size: 1.9rem;
+        }
+
+        .yah-section {
+            padding-top: 2.5rem;
+            padding-bottom: 2.5rem;
+        }
+
+        .yah-plus {
+            padding: 2rem 1.25rem 0;
+        }
+
+        .yah-plus-copy {
+            padding-bottom: 2rem;
+            padding-left: 2.5rem;
+        }
+
+        .yah-closing {
+            font-size: 1.2rem;
+        }
+    }
+</style>
+
+<div class="container pt-4">
+    <a href="/yet-another-habit/" class="d-inline-flex align-items-center gap-2 text-decoration-none text-reset">
+        <img src="/assets/yet-another-habit/icon.png" alt="" width="32" height="32" class="rounded">
+        <span class="fw-bold fs-5">Yet Another Habit</span>
+    </a>
+</div>
+
+<div class="container content flex-grow-1">
+
+    <div class="yah-hero text-center pt-5 pb-4 px-2">
+        <h1 class="display-6 mb-3">Some days you nail it. Some days you don&rsquo;t.</h1>
+        <p class="lead fs-4 mb-4">Yet Another Habit is fine with both.</p>
+        <p class="fs-5 text-body-secondary lead">
+            It shows you only what&rsquo;s due today &mdash; nothing else. Check a habit off or skip it, and it
+            leaves your list until tomorrow. No streak to protect, no wall of red squares reminding you about
+            that one bad Tuesday in March.
+        </p>
+    </div>
+
+    <div class="yah-video-wrap mb-2">
+        <video autoplay muted loop playsinline controls poster="/assets/yet-another-habit/all.png">
+            <source src="/assets/yet-another-habit/demo.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <!-- Today, and only today -->
+    <div class="yah-section">
+        <div class="row align-items-center g-4 g-md-5">
+            <div class="col-12 col-md-6">
+                <img src="/assets/yet-another-habit/track-dont-judge-repeat.png" alt="Today's habit list on Yet Another Habit" class="yah-shot w-100">
+            </div>
+            <div class="col-12 col-md-6">
+                <h2 class="fs-2">Today, and only today</h2>
+                <ul class="yah-feature-list">
+                    <li>See just the habits that need you right now.</li>
+                    <li>Mark them done or skip them &mdash; both are fine.</li>
+                    <li>Finished habits leave the list and stay out of your way.</li>
+                    <li>Every week starts clean, so a rough patch never follows you around.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Habits your way -->
+    <div class="yah-section pt-0">
+        <div class="row align-items-center g-4 g-md-5">
+            <div class="col-12 col-md-6 order-md-2">
+                <img src="/assets/yet-another-habit/done-or-skip.png" alt="Marking a habit done or skipping it" class="yah-shot w-100">
+            </div>
+            <div class="col-12 col-md-6 order-md-1">
+                <h2 class="fs-2">Habits your way</h2>
+                <ul class="yah-feature-list">
+                    <li>Give each habit a name and a color.</li>
+                    <li>Pick your days of the week, or just say &ldquo;three times a week&rdquo; and leave the rest to the app.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- A quiet interface -->
+    <div class="yah-section pt-0">
+        <div class="row align-items-center g-4 g-md-5">
+            <div class="col-12 col-md-7">
+                <img src="/assets/yet-another-habit/all.png" alt="The full list of habits in a quiet, minimal interface" class="yah-shot w-100">
+            </div>
+            <div class="col-12 col-md-5">
+                <h2 class="fs-2">A quiet interface</h2>
+                <p class="fs-5 text-body-secondary">
+                    Nothing on screen but the things you actually need to tap.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yet Another Habit Plus -->
+    <div class="yah-section">
+        <div class="yah-plus">
+            <div class="row align-items-center g-4 g-md-5">
+                <div class="col-12 col-md-6 order-md-2 yah-plus-shot-col">
+                    <img src="/assets/yet-another-habit/widget.png" alt="Yet Another Habit home screen widget" class="yah-shot w-100">
+                </div>
+                <div class="col-12 col-md-6 order-md-1 yah-plus-copy">
+                    <h2 class="fs-2">Yet Another Habit Plus</h2>
+                    <p class="fs-5" style="color:#cfcfcf;">
+                        Plus lifts the limits and takes your habits everywhere:
+                    </p>
+                    <ul class="yah-feature-list">
+                        <li>Unlimited habits &mdash; add as many as you like.</li>
+                        <li>Home screen widget &mdash; today&rsquo;s list right where you&rsquo;ll see it, nudging you without a single notification.</li>
+                        <li>Sync &mdash; your habits on every device you own.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="yah-section text-center pt-0">
+        <p class="yah-closing">
+            Yet Another Habit keeps you looking at today, instead of apologizing for yesterday.
+        </p>
+    </div>
+
+</div>
+
+<footer class="border-top mt-3">
+    <div class="container py-4 text-center">
+        <a href="/" class="fs-6 text-decoration-none text-reset d-block mb-1">
+            © {{ site.time | date: "%Y" }} Artem Konovalov
+        </a>
+        <a href="/yet-another-habit/privacy/" class="fs-6 text-decoration-none text-reset">Privacy Policy</a>
+        &nbsp;&middot;&nbsp;
+        <a href="/yet-another-habit/support/" class="fs-6 text-decoration-none text-reset">Support</a>
+    </div>
+</footer>
+
+</div>
