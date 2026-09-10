@@ -1,0 +1,47 @@
+---
+layout: default
+title: "Tres - Donate"
+description: "Support the development of Tres with a donation."
+permalink: /tres/donate/
+---
+<div class="d-flex flex-column min-vh-100">
+
+    <div class="container pt-4">
+        <a href="/tres/" class="d-inline-flex align-items-center gap-2 text-decoration-none text-reset">
+            <img src="/assets/tres/icon.png" alt="" width="32" height="32">
+            <span class="fw-bold fs-5">Tres</span>
+        </a>
+    </div>
+
+    <div class="container content pb-5 pt-5 pb-md-4 flex-grow-1">
+
+        <div class="row">
+            <h1>Enjoying Tres?</h1>
+            <div class="fs-5 pt-4">
+                <p>
+                    If you’d like to support its development, you can leave a donation.<br/>
+                    Any amount is welcome and genuinely appreciated. It helps keep the application free and moving forward.
+                </p>
+                <p style="margin-top: 10px">Thank you for your support.</p>
+
+                <div id="paypal-container-TJJLRG3MYXTG6" class="my-4"></div>
+                <script>
+                    paypal.HostedButtons({
+                      hostedButtonId: "TJJLRG3MYXTG6",
+                    }).render("#paypal-container-TJJLRG3MYXTG6")
+                </script>
+
+
+            </div>
+        </div>
+    </div>
+
+    <footer class="border-top mt-3">
+        <div class="container py-4 text-center">
+            <a href="/" class="fs-6 text-decoration-none text-reset d-block mb-1">
+                © {{ site.time | date: "%Y" }} Artem Konovalov
+            </a>
+        </div>
+    </footer>
+
+</div>
