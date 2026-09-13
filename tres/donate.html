@@ -24,14 +24,9 @@ permalink: /tres/donate/
                 </p>
                 <p style="margin-top: 10px">Thank you for your support.</p>
 
-                <div id="paypal-container-TJJLRG3MYXTG6" class="my-4"></div>
-                <script>
-                    paypal.HostedButtons({
-                      hostedButtonId: "TJJLRG3MYXTG6",
-                    }).render("#paypal-container-TJJLRG3MYXTG6")
-                </script>
-
-
+                <div class="my-4">
+                    {% include paypal-donate-button.html %}
+                </div>
             </div>
         </div>
     </div>

@@ -1,0 +1,179 @@
+---
+layout: default
+title: "Tres"
+description: "Tres adds a three-finger click to Apple's Magic Mouse, so you can look up any word in the system dictionary without touching the keyboard."
+permalink: /tres/
+---
+<div class="d-flex flex-column min-vh-100 tres-landing text-center">
+
+    <style>
+        .tres-landing {
+            background: #fdfdfc;
+        }
+
+        .tres-landing .container {
+            max-width: 1040px;
+        }
+
+        .tres-section {
+            padding-top: 6rem;
+            padding-bottom: 6rem;
+        }
+
+        /* Bump body copy (non-heading text) a bit larger across the whole page */
+        .content .fs-4 {
+            font-size: 1.65rem !important;
+        }
+
+        .content .fs-5 {
+            font-size: 1.4rem !important;
+        }
+
+        .tres-col-label {
+            flex: 0 0 160px;
+        }
+
+        .tres-install-row pre {
+            background: #282a36;
+            color: #f8f8f2;
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            font-size: 0.95rem;
+            overflow-x: auto;
+            margin-bottom: 0;
+        }
+
+        .tres-install-row .nb {
+            color: #50fa7b;
+        }
+
+        .tres-install-row .nt {
+            color: #ffb86c;
+        }
+
+        .tres-install-row .tres-brew {
+            color: #ff79c6;
+            font-weight: 700;
+        }
+
+        @media (max-width: 575.98px) {
+            .tres-col-label {
+                flex-basis: auto;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .tres-section {
+                padding-top: 3.5rem;
+                padding-bottom: 3.5rem;
+            }
+        }
+    </style>
+
+    <div class="container pt-4">
+        <a href="/tres/" class="d-inline-flex align-items-center gap-2 text-decoration-none text-reset">
+            <img src="/assets/tres/icon.png" alt="" width="48" height="48" class="rounded">
+            <span class="fw-bold fs-5">Tres</span>
+        </a>
+    </div>
+
+    <div class="container content flex-grow-1">
+
+        <div class="tres-section pb-0">
+            <video class="w-100 d-block rounded-4 shadow-lg border border-opacity-10 overflow-hidden mb-2"
+                   autoplay muted loop playsinline controls>
+                <source src="https://raw.githubusercontent.com/izebit/izebit.github.io/master/assets/tres/demo.mp4"
+                        type="video/mp4">
+            </video>
+        </div>
+
+        <div class="pt-5 pb-5 px-2">
+            <h1 class="display-6 fw-bold mb-3">Three fingers. One click. Any word explained.</h1>
+            <p class="fs-5 text-body-secondary mx-auto" style="max-width: 640px;">
+                Tres teaches your Apple's Magic Mouse a gesture it doesn&rsquo;t come with: press down with three
+                fingers on any word, anywhere on macOS, and its definition pops up instantly &mdash; no keyboard,
+                no menus, no app to switch to.
+            </p>
+        </div>
+
+        <div class="tres-section pt-0">
+            <blockquote class="mx-auto" style="max-width: 640px;">
+                <p class="fs-5 mb-1">Tres (Latin: trēs) means &ldquo;three.&rdquo;</p>
+                <cite class="fst-normal text-muted small">
+                    &mdash; <a href="https://alatius.com/ls/index.php?id=48970" class="text-reset fst-italic"
+                               target="_blank" rel="noopener nofollow">Lewis &amp; Short Latin Dictionary</a>
+                </cite>
+            </blockquote>
+        </div>
+
+        <div class="tres-section pt-0">
+            <h2 class="fs-2 fw-bold mb-4">Install Tres</h2>
+            <div class="ps-0 ps-sm-4 text-start" style="max-width: 760px;">
+                <div class="tres-install-row d-flex flex-column flex-sm-row align-items-stretch align-items-sm-baseline gap-2 gap-sm-4 py-3 py-sm-4 border-top border-opacity-10">
+                    <h3 class="tres-col-label fs-5 fw-bold mb-0">GitHub Releases</h3>
+                    <div class="flex-grow-0 flex-sm-grow-1">
+                        <p class="text-body-secondary">Download the latest build directly from the releases page.</p>
+                        <a href="https://github.com/izebit/tres/releases" class="btn btn-dark rounded-3"
+                           style="width: 180px;" target="_blank" rel="noopener nofollow">Download</a>
+                    </div>
+                </div>
+                <div class="tres-install-row d-flex flex-column flex-sm-row align-items-stretch align-items-sm-baseline gap-2 gap-sm-4 py-3 py-sm-4 border-top border-opacity-10">
+                    <h3 class="tres-col-label fs-5 fw-bold mb-0">Homebrew</h3>
+                    <div class="flex-grow-0 flex-sm-grow-1">
+                        <p class="text-body-secondary">Tap the cask and install from your terminal.</p>
+                        <div class="position-relative">
+                            <button type="button" class="btn btn-sm btn-outline-light position-absolute top-0 end-0 m-2"
+                                    onclick="tresCopyCode('tres-brew-code', this)">Copy</button>
+                            <div class="language-bash highlighter-rouge mb-0"><div class="highlight"><pre class="highlight"><code id="tres-brew-code"><span class="nb tres-brew">brew</span> tap izebit/tap
+<span class="nb tres-brew">brew</span> trust izebit/tap
+<span class="nb tres-brew">brew</span> <span class="nb">install</span> <span class="nt">--cask</span> tres</code></pre></div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tres-install-row d-flex flex-column flex-sm-row align-items-stretch align-items-sm-baseline gap-2 gap-sm-4 py-3 py-sm-4 border-top border-bottom border-opacity-10">
+                    <h3 class="tres-col-label fs-5 fw-bold mb-0">From source</h3>
+                    <div class="flex-grow-0 flex-sm-grow-1">
+                        <p class="text-body-secondary">Clone the repository and build it yourself.</p>
+                        <a href="https://github.com/izebit/tres" class="btn bg-white border rounded-3"
+                           style="width: 180px;" target="_blank" rel="noopener nofollow"
+                           aria-label="View Tres on GitHub">
+                            <img src="/assets/logos/social/github-logo-big.svg" alt="" style="height: 24px;"
+                                 class="w-auto d-block mx-auto">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tres-section pt-0">
+            <h2 class="fs-2 fw-bold mb-3">Donate</h2>
+            <p class="fs-5 text-body-secondary mx-auto mb-4" style="max-width: 640px;">
+                Tres is free. If it&rsquo;s useful to you, a donation helps keep it that way.
+            </p>
+            <div class="mx-auto" style="max-width: 320px;">
+                {% include paypal-donate-button.html %}
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="border-top mt-3">
+        <div class="container py-4">
+            <a href="/" class="fs-6 text-decoration-none text-reset d-block mb-1">
+                © {{ site.time | date: "%Y" }} Artem Konovalov
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        function tresCopyCode(id, btn) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text).then(function () {
+                const original = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(function () { btn.textContent = original; }, 1500);
+            });
+        }
+    </script>
+
+</div>

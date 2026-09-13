@@ -1,0 +1,7 @@
+{% assign button_id = include.button-id | default: "TJJLRG3MYXTG6" %}
+<div id="paypal-container-{{ button_id }}" style="max-width: 320px;"></div>
+<script>
+    paypal.HostedButtons({
+      hostedButtonId: "{{ button_id }}",
+    }).render("#paypal-container-{{ button_id }}")
+</script>
