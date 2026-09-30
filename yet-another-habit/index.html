@@ -129,6 +129,20 @@ permalink: /yet-another-habit/
         flex-shrink: 0;
     }
 
+    .yah-download-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .75rem;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .yah-download-row span {
+        font-weight: 600;
+        font-size: clamp(1rem, 5vw, 1.75rem);
+    }
+
     @media (max-width: 767.98px) {
         .yah-hero h1 {
             font-size: 1.9rem;
@@ -177,6 +191,13 @@ permalink: /yet-another-habit/
         <video autoplay muted loop playsinline controls poster="/assets/yet-another-habit/all.png">
             <source src="https://raw.githubusercontent.com/izebit/izebit.github.io/master/assets/yet-another-habit/demo.mp4" type="video/mp4">
         </video>
+    </div>
+
+    <div class="text-center py-4">
+        <a href="https://apps.apple.com/app/yet-another-habit/id6809048979" class="yah-download-row">
+            <span>Download</span>
+            <img src="/assets/yet-another-habit/apple-store.png" alt="Download on the App Store" class="yah-appstore-badge">
+        </a>
     </div>
 
     <!-- Today, and only today -->
@@ -251,7 +272,7 @@ permalink: /yet-another-habit/
             <p class="yah-closing mb-0">
                 Yet Another Habit keeps you looking at today, instead of apologizing for yesterday.
             </p>
-            <a href="#">
+            <a href="https://apps.apple.com/app/yet-another-habit/id6809048979">
                 <img src="/assets/yet-another-habit/apple-store.png" alt="Download on the App Store" class="yah-appstore-badge">
             </a>
         </div>

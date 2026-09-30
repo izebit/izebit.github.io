@@ -13,3 +13,5 @@ group :jekyll_plugins do
   gem 'faraday-retry'
   gem "csv"
 end
+
+gem "logger", "~> 1.7"
